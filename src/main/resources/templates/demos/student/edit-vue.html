@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="includes/base :: common_header(~{},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/css/tab-common.css}">
+    <link rel="stylesheet" th:href="@{/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/multiple-select/multiple-select.min.css}">
+    <style>
+        .form-inline .col-form-label {
+            width: 100px;
+        }
+    </style>
+</head>
+<body class="app">
+<th:block th:replace="includes/base :: common_content(~{::div})">
+    <div class="container-fluid">
+        <div class="card">
+            <div class="card-header">学生信息 Vue 实现</div>
+            <div class="card-body">
+                <form class="form-inline row" id="form" onsubmit="return false">
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="code">外部可见，唯一code</label>
+                        <input class="form-control" type="text" id="code" value="" name="code" required v-model="form.code" :disabled="this.form.id">
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="name" required>姓名</label>
+                        <input class="form-control" type="text" id="name" value="" name="name" required v-model="form.name">
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="birthday">出生日期</label>
+                        <input type="text" class="form-control" id="birthday" name="birthday" th:value="${student.birthday}" required>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="age">年龄</label>
+                        <input class="form-control" type="number" id="age" value="" name="age" v-model="form.age" pattern="-?\d+(\.\d+)?" required>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="marriage">婚否</label>
+                        <div class="form-check form-check-inline mr-2">
+                            <input class="form-check-input" type="checkbox" id="marriage" value="1" name="marriage" v-model="form.marriage">
+                        </div>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="unitCode" required>单位code</label>
+                        <select class="form-control" type="text" id="unitCode" value="" name="unitCode" v-model="form.unitCode" required>
+                            <option v-for="dict in datasource.dicts.UNIT" :value="dict.name" v-text="dict.label"></option>
+                        </select>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="email">email</label>
+                        <input class="form-control" type="text" id="email" value="" pattern="^(.+)@(\S+)$" name="email" required v-model="form.email">
+                    </div>
+                    <div class="form-group col-4 form-group-check-container">
+                        <label class="col-form-label required">hobbyList</label>
+                        <div class="form-check-group" id="hobbyList">
+                            <div class="form-check form-check-inline mr-2" v-for="dict in datasource.dicts.HobbyEnum">
+                                <input class="form-check-input" type="checkbox" :id="'checkbox_' + dict.name" :value="dict.name" name="hobbyList" v-model="form.hobbyList">
+                                <label class="form-check-label" :for="'checkbox_' + dict.name">{{dict.label}}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-4 form-group-check-container">
+                        <label class="col-form-label required">gender</label>
+                        <div class="form-check-group" id="gender">
+                            <div class="form-check form-check-inline mr-2" v-for="dict in datasource.dicts.GenderEnum">
+                                <input class="form-check-input" :id="'radio_' + dict.name" type="radio" :value="dict.name" name="gender" v-model="form.gender">
+                                <label class="form-check-label" :for="'radio_' + dict.name">{{dict.label}}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="materialTypeList">物料类型</label>
+                        <sp:select id="materialTypeList" name="materialTypeList" key="MATERIAL" class="form-control" hideDummyItemText required/>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="category">分类</label>
+                        <sp:select id="category" name="category" key="CategoryEnum" class="form-control" hideDummyItemText required/>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="available">状态</label>
+                        <label class="switch switch-pill switch-primary">
+                            <input class="switch-input" type="checkbox" id="available" name="available" v-model="form.available">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                    <div class="form-group col-4">
+                        <label class="col-form-label required" for="remark">简介</label>
+                        <textarea class="form-control" id="remark" name="remark" v-model="form.remark" required></textarea>
+                    </div>
+                    <div class="form-group col-12">
+                        <label class="col-form-label"></label>
+                        <div> <button class="btn btn-primary mr-4" type="button" @click="send">
+                            <i class="fa fa-send"></i> 保存</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</th:block>
+<th:block th:replace="includes/base :: common_js(~{::script})">
+    <script th:src="@{/js/form-support.js}"></script>
+    <script th:src="@{/plugins/jquery.form2json.js}"></script>
+    <script th:src="@{/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js}"></script>
+    <script th:src="@{/plugins/multiple-select/multiple-select.min.js}"></script>
+    <script th:inline="javascript">
+        let formDOM
+
+        new Vue({
+            el: '#form',
+            data: {
+                datasource: {
+                    dicts: {}
+                },
+                // form: {
+                //     id: /*[[${student.id == null ? '' : student.id + ''} ]]*/,
+                //     code: '',
+                //     name: '',
+                //     birthday: '',
+                //     age: '',
+                //     marriage: '',
+                //     gender: '',
+                //     unitCode: '',
+                //     materialTypeList: [],
+                //     category: '',
+                //     remark: '',
+                //     hobbyList: []
+                // },
+                // loading: true,
+
+
+                form: /*[[${ student } ]]*/,
+                loading: false
+            },
+            created() {
+                // 一次行获取多个字典数据源
+                $.get("/dict" +
+                    "s?codes=CategoryEnum,MATERIAL,UNIT,HobbyEnum,GenderEnum", (res) => {
+                    this.datasource.dicts = res
+                })
+            },
+            updated() {
+                let readonly = [[${query.readonly}]]
+                if (readonly === 'true') {
+                    $("form :input").prop("disabled", true);
+                    $('table .operator').hide()
+                    // $('#okId').hide()
+                } else {
+                    // $('#okId').show()
+                }
+            },
+            mounted() {
+                if (this.loading) {
+                    $.LoadingOverlay('show')
+                }
+
+                formDOM = document.getElementById("form")
+
+                registerValid(formDOM, () => {
+                    // 其他验证 + error 样式
+                    let valid = formDOM.validElse(this.form.hobbyList.length > 0, document.getElementById('hobbyList')) &
+                                formDOM.validElse(!!this.form.gender, document.getElementById('gender')) &
+                                formDOM.validElse($('#materialTypeList').multipleSelect('getSelects').length > 0, document.getElementById('materialTypeList').nextSibling) &
+                                formDOM.validElse(!!this.form.category, document.getElementById('category').nextSibling)
+
+                    return valid
+                });
+
+                // jquery 控件
+                $('#birthday').datepicker({
+                    language: "zh-CN",
+                    autoclose: true,
+                    clearBtn: true,
+                    todayBtn: 'linked',
+                    todayHighlight: true,
+                    format: 'yyyy-mm-dd'
+                })
+
+                $('#materialTypeList').multipleSelect({
+                    filter: true,
+                    selectAll: true,
+                    single: false,
+                    placeholder: '选择物料类型'
+                }).multipleSelect('setSelects',[])
+
+                $('#category').multipleSelect({
+                    filter: true,
+                    single: true,
+                    placeholder: '选择分类'
+                }).multipleSelect('setSelects', [])
+
+                // 不需要 ajax 再次获取，已经放到 model 中了
+                // if (this.form.id) {
+                //     $.get("/students/" + this.form.id, (data) => {
+                //         this.form = data
+                //         // format
+                        this.form.unitCode = this.form.unit ? this.form.unit.code : ''
+                        this.form.gender = this.form.gender ? this.form.gender.code : ''
+
+                        // this.form.materialTypeList = (this.form.materialTypeList && this.form.materialTypeList.map(type => type.code)) || []
+                        this.form.materialTypeList = this.form.materialTypeList.map(type => type.code)
+
+                        console.log("this.form = ", this.form)
+
+                        $('#materialTypeList').multipleSelect('setSelects', this.form.materialTypeList)
+                        $('#category').multipleSelect('setSelects', this.form.category || '')
+                //
+                //         this.loading = false
+                //     })
+                // } else {
+                //     this.loading = false
+                // }
+            },
+            computed: {
+            },
+            // watch: { // 后端获取数据
+            //     loading: function (val, oldVal) {
+            //         val ? $.LoadingOverlay('show') : $.LoadingOverlay('hide')
+            //     }
+            // },
+            methods: {
+                send: function () {
+                    if (formDOM.valid()) {
+                        // let formData = $('form').form2json({
+                        //     multiValSelector: '[type=checkbox], select[multiple]'
+                        // });
+                        this.form.birthday = document.getElementById("birthday").value // 必须手动获取，Vue 获取不到
+                        this.form.materialTypeList = $('#materialTypeList').multipleSelect('getSelects')
+
+                        let categoryValue = $('#category').multipleSelect('getSelects')
+                        this.form.category = categoryValue.length > 0 ? categoryValue[0] : ''
+
+                        let formData = this.form
+
+                        $.ajax ({
+                            url: "/students",
+                            type: "post",
+                            data: JSON.stringify(formData),
+                            dataType: "json",
+                            contentType: "application/json; charset=utf-8",
+                            success: (res) => {
+                                if (!res.success) {
+                                    toastr.error(res.message)
+                                } else {
+                                    this.form.id = res.data.id
+                                    this.form.code = res.data.code
+                                    toastr.success("保存成功")
+                                    reloadTab('student2')
+                                }
+                            }
+                        });
+                    }
+                }
+            }
+        })
+    </script>
+</th:block>
+</body>
+</html>
