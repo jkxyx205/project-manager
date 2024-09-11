@@ -16,6 +16,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 
@@ -45,6 +46,10 @@ public class Product extends BaseCodeEntity<Long> {
 //    @JsonAlias("supplierId")
     @JsonDeserialize(using = EntityWithLongIdPropertyDeserializer.class)
     Supplier supplier;
+
+    BigDecimal rmbPrice;
+
+    BigDecimal usdPrice;
 
     @Column(comment = "备注")
     String remark;

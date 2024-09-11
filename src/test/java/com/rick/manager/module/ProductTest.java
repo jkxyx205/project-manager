@@ -113,6 +113,20 @@ public class ProductTest {
                 .validatorList(Arrays.asList(requiredValidator))
                 .build();
 
+        CpnConfigurer rmbPriceCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.NUMBER_TEXT)
+                .name("rmbPrice")
+                .label("人民币含税")
+                .placeholder("请输入人民币含税价格")
+                .build();
+
+        CpnConfigurer usdPriceCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.NUMBER_TEXT)
+                .name("usdPrice")
+                .label("美金未税")
+                .placeholder("请输入美金未税价格")
+                .build();
+
         CpnConfigurer remarkCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXTAREA)
                 .name("remark")
@@ -135,13 +149,19 @@ public class ProductTest {
                 .placeholder("请输入单价")
                 .build();
 
+        CpnConfigurer labelCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.LABEL)
+                .name("avatarLabel")
+                .label("图片")
+                .build();
+
         CpnConfigurer accessoryCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TABLE)
                 .name("accessoryList")
                 .label("配件")
                 .placeholder("请输入配件")
                 .additionalInfo(Params.builder()
-                        .pv("columns", Arrays.asList(accessoryNameCpn, accessoryAmountCpn))
+                        .pv("columns", Arrays.asList(accessoryNameCpn, accessoryAmountCpn, labelCpn))
                         .build())
                 .build();
 
@@ -151,7 +171,7 @@ public class ProductTest {
                 .label("图片")
                 .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, remarkCpn, accessoryCpn, pictureCpn);
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, accessoryCpn, pictureCpn);
         return cpnConfigurerList;
     }
 

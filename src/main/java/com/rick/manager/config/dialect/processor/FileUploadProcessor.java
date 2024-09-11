@@ -77,7 +77,7 @@ public class FileUploadProcessor extends AbstractElementTagProcessor {
                 "                                <div style=\"display: inline-block;\" id=\"btn-file\">\n" +
                 "                                    <label class=\"btn btn-primary btn-sm btn-upload\" style=\"margin: 2px\" for=\""+name+"_file\"><i class=\"fa fa-upload\"></i> 上传</label>\n" +
                 "                                </div>\n" +
-                "                                <input style=\"display: none;\" type=\"text\" id=\""+name+"\" name=\""+name+"\" th:value=\"${value ne null ? T(com.rick.common.util.JsonUtils).toJson(value) : '[]'}\">\n" +
+                "                                <input type=\"hidden\" id=\""+name+"\" name=\""+name+"\" th:value=\"${value ne null ? T(com.rick.common.util.JsonUtils).toJson(value) : '[]'}\">\n" +
                 "                                <input style=\"display: none;\" type=\"file\" id=\""+name+"_file\" name=\""+name+"_file\" multiple "+ (StringUtils.isBlank(accept) ? "" : "accept=\""+accept+"\" ") +"data-group-name=\""+group+"\" onchange=\""+formName+"_"+name+"_file.ajaxFileUpload()\">\n" +
                 "                                <div class=\"attachment-items\">\n" +
                 "                                    <th:block th:if=\"${value ne null}\">\n" +
