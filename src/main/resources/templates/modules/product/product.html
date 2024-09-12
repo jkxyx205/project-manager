@@ -65,6 +65,10 @@
             /*background-color: blue;*/
         }
 
+        .col-sm-0 {
+            display: none!important;
+        }
+
         /*[(${formBO.form.getAdditionalInfo['css'] == null ? '' : formBO.form.getAdditionalInfo['css']})]*/
     </style>
 </head>
@@ -103,7 +107,7 @@
                     </div>
                     <div class="form-group col-12">
                         <label class="col-form-label">参数</label>
-                        <div style="flex: 1; padding-left: 15px; border-left: 3px solid #c8ced3;" th:id="${formBO.data['attrFormId']}">
+                        <div th:id="${formBO.data['attrFormId']}">
                             <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="tpl/form/form-tag" hide-form-tag></sp:form>
                         </div>
                     </div>
@@ -125,20 +129,17 @@
                                 <th style="width: 100px;">
                                     <label class="col-form-label" style="display: block; width: 100%; text-align: center">图片</label>
                                 </th>
-                                <th>
-                                </th>
+                                <th></th>
                             </tr>
                             </thead>
                             <tbody>
                             <tr th:each="row : ${formBO.data.accessoryList}">
                                 <td th:each="col: ${row}">
-
                                     <input th:if="${colStat.index != 2}" type="text" class="form-control" th:value="${col}">
                                     <th:block th:if="${colStat.index == 2}">
                                         <input type="hidden" class="form-control" th:value="${col}">
                                         <img height="30px" th:src="${col + '?x-oss-process=image/resize,h_30'}">
                                     </th:block>
-
                                 </td>
                                 <td class="operator btn-link">X</td>
                             </tr>
