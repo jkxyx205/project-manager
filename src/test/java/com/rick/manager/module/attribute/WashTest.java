@@ -50,7 +50,7 @@ public class WashTest {
                 .tplName("tpl/form/form") // 弹出框显示需要使用 tpl/form/form-full
                 .additionalInfo(Params.builder(1)
                         .pv(FormConstants.ADDITIONAL_SHOW_SAVE_FORM_BTN, false)
-                        .pv(FormConstants.ADDITIONAL_LABEL_COL, "1")
+                        .pv(FormConstants.ADDITIONAL_LABEL_COL, 0) // 不显示标签
                         .build())
                 .name("洗地机参数")
                 .storageStrategy(Form.StorageStrategyEnum.INNER_TABLE)
@@ -71,13 +71,13 @@ public class WashTest {
         List<Validator> codeRegexValidatorList = Lists.newArrayList(textValidatorList);
         codeRegexValidatorList.add(codeRegex);
 
-        CpnConfigurer dlCpn = CpnConfigurer.builder()
-                .cpnType(CpnTypeEnum.TEXT)
-                .name("dl")
-                .label("电流")
-                .placeholder("请输入电流")
-//                .validatorList(textValidatorList)
-                .build();
+//        CpnConfigurer dlCpn = CpnConfigurer.builder()
+//                .cpnType(CpnTypeEnum.TEXT)
+//                .name("dl")
+//                .label("电流")
+//                .placeholder("请输入电流")
+////                .validatorList(textValidatorList)
+//                .build();
 
         CpnConfigurer paramNameCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
@@ -95,17 +95,24 @@ public class WashTest {
                 .validatorList(textValidatorList)
                 .build();
 
+        CpnConfigurer remarkValueCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXT)
+                .name("paramRemark")
+                .label("备注")
+                .placeholder("请输入备注")
+                .build();
+
         CpnConfigurer paramCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TABLE)
                 .name("param")
                 .label("其他参数")
                 .placeholder("请输入参数")
                 .additionalInfo(Params.builder()
-                        .pv("columns", Arrays.asList(paramNameCpn, paramValueCpn))
+                        .pv("columns", Arrays.asList(paramNameCpn, paramValueCpn, remarkValueCpn))
                         .build())
                 .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(dlCpn, paramCpn);
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(paramCpn); /*dlCpn*/
         return cpnConfigurerList;
     }
 
