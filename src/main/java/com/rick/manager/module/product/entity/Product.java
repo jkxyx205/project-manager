@@ -19,6 +19,7 @@ import lombok.experimental.SuperBuilder;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Rick.Xu
@@ -60,6 +61,9 @@ public class Product extends BaseCodeEntity<Long> {
 
     @Column(value = "picture", columnDefinition = "text", comment = "图片")
     List<HashMap<String, String>> pictures;
+
+    @Column(value = "price_template", columnDefinition = "text", comment = "报价模版")
+    Map<String, String> priceTemplate;
 
 //    @ManyToMany(thirdPartyTable = "t_product_accessory", referenceTable =  "t_product", referenceColumnName = "accessory_id", columnDefinition="product_id")
 //    List<Product> accessoryList;

@@ -26,9 +26,13 @@ public class ExportParamDTO {
 
     PriceTypeEnum priceType;
 
+    String incoterm;
+
     BigDecimal rate;
 
     String step;
+
+    Integer quantity;
 
     @AllArgsConstructor
     @Getter

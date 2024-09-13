@@ -92,7 +92,7 @@ public class ProductTest {
                 .name("name")
                 .label("品名")
                 .placeholder("请输入品名")
-                .validatorList(textValidatorList)
+                .validatorList(Arrays.asList(requiredValidator, new Length(256)))
                 .build();
 
         CpnConfigurer categoryCpn = CpnConfigurer.builder()
@@ -171,7 +171,13 @@ public class ProductTest {
                 .label("图片")
                 .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, accessoryCpn, pictureCpn);
+        CpnConfigurer priceTemplateCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.FILE)
+                .name("priceTemplate")
+                .label("报价单")
+                .build();
+
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, accessoryCpn, pictureCpn, priceTemplateCpn);
         return cpnConfigurerList;
     }
 

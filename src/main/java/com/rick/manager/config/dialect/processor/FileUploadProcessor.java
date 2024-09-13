@@ -73,7 +73,7 @@ public class FileUploadProcessor extends AbstractElementTagProcessor {
         String accept = attrMap.get(PROP_ACCEPT);
         String group = StringUtils.defaultString(attrMap.get(PROP_GROUP), "upload");
 
-        String template = "<div class=\"attachment\">\n" +
+        String template = "<div class=\"attachment "+name+"\">\n" +
                 "                                <div style=\"display: inline-block;\" id=\"btn-file\">\n" +
                 "                                    <label class=\"btn btn-primary btn-sm btn-upload\" style=\"margin: 2px\" for=\""+name+"_file\"><i class=\"fa fa-upload\"></i> 上传</label>\n" +
                 "                                </div>\n" +
@@ -90,8 +90,14 @@ public class FileUploadProcessor extends AbstractElementTagProcessor {
                 "                            </div>";
 
         String value = attrMap.get(PROP_VALUE);
+        if (StringUtils.isBlank(value)) {
+            value = "[]";
+        } else if (value.startsWith("{")) {
+            value = "["+value+"]";
+        }
+
         Map<String, Object> params = new HashMap<>();
-        params.put(PROP_VALUE, Optional.ofNullable(value).map(v -> JsonUtils.toList(value, Map.class)).orElse(null));
+        params.put(PROP_VALUE, Optional.ofNullable(value).map(v -> JsonUtils.toList(v, Map.class)).orElse(null));
         String htmlContent = ThymeleafRenderHelper.renderByHtmlContent(template, params);
         iElementTagStructureHandler.replaceWith(htmlContent, false);
     }
