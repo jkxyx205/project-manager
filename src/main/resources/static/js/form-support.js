@@ -86,7 +86,7 @@ function sharpFormInit(formDOM, idDOM, options, reloadTabIds, elseValid) {
                 window[formDOM.getAttribute("name") + '_' + c.name + '_file_uploadConsumer'],
                 window[formDOM.getAttribute("name") + '_' + c.name + '_file_deleteConsumer'],
                 window[formDOM.getAttribute("name") + '_' + c.name + '_file_itemSupplier']
-                )
+            )
         })
     }
 
@@ -128,7 +128,9 @@ function sharpFormInit(formDOM, idDOM, options, reloadTabIds, elseValid) {
                         // }, 1000)
                     }
 
-                    _reloadTab(reloadTabIds)
+                    setTimeout(() => {
+                        _reloadTab(reloadTabIds)
+                    }, 1000)
                 }
             }
         });
