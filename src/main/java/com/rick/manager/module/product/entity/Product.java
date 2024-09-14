@@ -43,7 +43,7 @@ public class Product extends BaseCodeEntity<Long> {
     @DictValueCheck(type = "PRODUCT_TYPE")
     DictValue category;
 
-    @ManyToOne(value = "supplier_id", parentTable = "t_supplier", updatable = false, comment = "所属供应商")
+    @ManyToOne(value = "supplier_id", parentTable = "t_supplier", comment = "所属供应商")
 //    @JsonAlias("supplierId")
     @JsonDeserialize(using = EntityWithLongIdPropertyDeserializer.class)
     Supplier supplier;
