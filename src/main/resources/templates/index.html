@@ -61,17 +61,17 @@
                     <ul class="nav-dropdown-items">
                         <li class="nav-item">
                             <a class="nav-link" href="javascript:addTab('t_product', '产品', '/reports/864272287958904832?mode=multiple')">
-                                <i class="nav-icon icon-people"></i> 产品
+                                <i class="nav-icon icon-basket"></i> 产品
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="javascript:addTab('t_customer', '客户', '/reports/866352375902806016')">
-                                <i class="nav-icon icon-share"></i> 客户
+                                <i class="nav-icon icon-people"></i> 客户
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="javascript:addTab('t_supplier', '供应商', '/reports/864247895312904192')">
-                                <i class="nav-icon icon-share"></i> 供应商
+                                <i class="nav-icon icon-layers"></i> 供应商
                             </a>
                         </li>
                         <li class="nav-item" sec:authorize="hasAuthority('sys_dict')">
@@ -81,7 +81,7 @@
                         </li>
                     </ul>
                 </li>
-                <li class="nav-item nav-dropdown open" sec:authorize="hasAuthority('sys_management')">
+                <li class="nav-item nav-dropdown" sec:authorize="hasAuthority('sys_management')">
                     <a class="nav-link nav-dropdown-toggle" href="#">
                         <i class="nav-icon icon-settings"></i> 系统</a>
                     <ul class="nav-dropdown-items">

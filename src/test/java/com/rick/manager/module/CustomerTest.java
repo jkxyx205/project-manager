@@ -89,7 +89,7 @@ public class CustomerTest {
                 .cpnType(CpnTypeEnum.TEXT)
                 .name("name")
                 .label("客户")
-                .placeholder("请输入供应商")
+                .placeholder("请输入客户")
                 .validatorList(textValidatorList)
                 .build();
 
@@ -113,7 +113,6 @@ public class CustomerTest {
                 .name("whatsApp")
                 .label("Whats App")
                 .placeholder("请输入Whats App")
-                .validatorList(textValidatorList)
                 .build();
 
         CpnConfigurer remarkCpn = CpnConfigurer.builder()
