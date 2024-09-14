@@ -60,8 +60,13 @@
                         <i class="nav-icon icon-settings"></i> 管理</a>
                     <ul class="nav-dropdown-items">
                         <li class="nav-item">
-                            <a class="nav-link" href="javascript:addTab('t_product', '产品', '/reports/864272287958904832')">
+                            <a class="nav-link" href="javascript:addTab('t_product', '产品', '/reports/864272287958904832?mode=multiple')">
                                 <i class="nav-icon icon-people"></i> 产品
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="javascript:addTab('t_customer', '客户', '/reports/866352375902806016')">
+                                <i class="nav-icon icon-share"></i> 客户
                             </a>
                         </li>
                         <li class="nav-item">
@@ -209,7 +214,7 @@
             nthTabs.addTab({
                 id: "t_product",
                 title: '产品',
-                url: "/reports/864272287958904832",
+                url: "/reports/864272287958904832?mode=multiple",
                 allowClose: false
             });
         })

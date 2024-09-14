@@ -63,3 +63,5 @@ dict:
       sql: "select name, label from sys_dict where type = 'PRODUCT_TYPE' order by sort asc"
     - type: sys_dict_supplier
       sql: "select id, name from t_supplier"
+    - type: sys_dict_customer
+      sql: "select id, name from t_customer"

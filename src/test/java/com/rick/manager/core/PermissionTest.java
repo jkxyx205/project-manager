@@ -51,6 +51,16 @@ public class PermissionTest {
         final int PERMISSION_ORDER = 1;
         testAddPermission(CODE, NAME, PARENT_ID, PERMISSION_ORDER);
     }
+
+    @Test
+    public void testAddPermission2() {
+        final String CODE = "t_customer";
+        final String NAME = "客户管理";
+        final Long PARENT_ID = 866065023858941952L;
+        final int PERMISSION_ORDER = 2;
+        testAddPermission(CODE, NAME, PARENT_ID, PERMISSION_ORDER);
+    }
+
     @Test
     public void testAddPermission(String CODE, String NAME, Long PARENT_ID, int PERMISSION_ORDER) {
         jdbcTemplate.execute("delete from sys_role_permission where permission_id IN (select id from sys_permission where code like'"+CODE+"%')");

@@ -52,7 +52,10 @@ public class Product extends BaseCodeEntity<Long> {
 
     BigDecimal usdPrice;
 
-    @Column(comment = "备注")
+    @Column(comment = "参数描述")
+    String description;
+
+    @Column(comment = "产品备注")
     String remark;
 
     Long instanceId;
@@ -62,10 +65,21 @@ public class Product extends BaseCodeEntity<Long> {
     @Column(value = "picture", columnDefinition = "text", comment = "图片")
     List<HashMap<String, String>> pictures;
 
-    @Column(value = "price_template", columnDefinition = "text", comment = "报价模版")
-    Map<String, String> priceTemplate;
+    @Column(value = "usd_price_template", columnDefinition = "text", comment = "USD报价模版")
+    Map<String, String> usdPriceTemplate;
+
+    @Column(value = "rmb_price_template", columnDefinition = "text", comment = "RMB报价模版")
+    Map<String, String> rmbPriceTemplate;
 
 //    @ManyToMany(thirdPartyTable = "t_product_accessory", referenceTable =  "t_product", referenceColumnName = "accessory_id", columnDefinition="product_id")
 //    List<Product> accessoryList;
     List<List<String>> accessoryList;
+
+    List<List<String>> sellingPoint;
+
+    String certificate;
+
+    List<List<String>> leadTime;
+
+    List<List<String>> packingInformation;
 }

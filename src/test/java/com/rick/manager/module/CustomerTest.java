@@ -26,10 +26,10 @@ import java.util.stream.Collectors;
 
 /**
  * @author Rick.Xu
- * @date 2024-09-08 19:05:08
+ * @date 2024-09-14 14:27:32
  */
 @SpringBootTest
-public class SupplierTest {
+public class CustomerTest {
 
     @Autowired
     private FormCpnService formCpnService;
@@ -50,15 +50,15 @@ public class SupplierTest {
         cpnConfigurerService.saveOrUpdate(cpnConfigurerList);
         // 创建表
         Form form = formService.saveOrUpdate(Form.builder()
-                .id(864249380058771456L)
-                .code("t_supplier")
-                .tableName("t_supplier")
+                .id(866354416721108992L)
+                .code("t_customer")
+                .tableName("t_customer")
 //                // 1. 弹出框
                 .tplName("tpl/form/form-full") // 弹出框显示需要使用 tpl/form/form-full
                 .additionalInfo(Params.builder(1).pv("showSaveFormBtn", false).build())
-                .name("供应商信息")
-                .formAdviceName("supplierFormAdvice")
-                .repositoryName("supplierDAO")
+                .name("客户信息")
+                .formAdviceName("customerFormAdvice")
+                .repositoryName("customerDAO")
                 .storageStrategy(Form.StorageStrategyEnum.CREATE_TABLE)
                 .build());
         // 关联关系
@@ -88,9 +88,16 @@ public class SupplierTest {
         CpnConfigurer nameCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
                 .name("name")
-                .label("供应商")
+                .label("客户")
                 .placeholder("请输入供应商")
                 .validatorList(textValidatorList)
+                .build();
+
+        CpnConfigurer addressCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXT)
+                .name("address")
+                .label("地址")
+                .placeholder("请输入地址")
                 .build();
 
         CpnConfigurer contactNameCpn = CpnConfigurer.builder()
@@ -101,39 +108,43 @@ public class SupplierTest {
                 .validatorList(textValidatorList)
                 .build();
 
-        CpnConfigurer contactPhoneCpn = CpnConfigurer.builder()
+        CpnConfigurer whatsappCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
-                .name("contactPhone")
-                .label("联系电话")
-                .placeholder("请输入联系电话")
+                .name("whatsApp")
+                .label("Whats App")
+                .placeholder("请输入Whats App")
                 .validatorList(textValidatorList)
                 .build();
 
+        CpnConfigurer remarkCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXTAREA)
+                .name("remark")
+                .label("备注")
+                .placeholder("请输入备注")
+                .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, contactNameCpn, contactPhoneCpn);
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, addressCpn, contactNameCpn, whatsappCpn, remarkCpn);
         return cpnConfigurerList;
     }
-
     @Test
     public void testReport() {
         Report report = Report.builder()
-                .id(864247895312904192L)
-                .code("t_supplier")// 　建议和数据库表名保持一致
-                .tplName("tpl/list/ajax_list") // 拷贝模版页面到指定目录
-//                .tplName("tpl/list/list") // 没有特殊要求使用模版页面
-                .name("供应商")
+                .code("t_customer")// 　建议和数据库表名保持一致
+//                .tplName("tpl/list/ajax_list") // 拷贝模版页面到指定目录
+                .tplName("tpl/list/list") // 没有特殊要求使用模版页面
+//                .tplName("tpl/list/ajax_list") // 没有特殊要求使用模版页面
+                .name("客户")
                 .reportAdviceName("operatorReportAdvice")
-                .additionalInfo(Params.builder(2)
-                        .pv("operator-bar", true) // 显示操作按钮
-                        .pv(ReportConstants.ADDITIONAL_FORM_ID, "864249380058771456")
+                .additionalInfo(Params.builder(1).pv("operator-bar", true) // 显示操作按钮
+                        .pv(ReportConstants.ADDITIONAL_FORM_ID, "866354416721108992")
                         .build()) // 显示操作按钮
-                .querySql("SELECT t_supplier.name AS \"name\",t_supplier.contact_name AS \"contactName\",t_supplier.contact_phone AS \"contactPhone\",t_supplier.code AS \"code\",t_supplier.create_by AS \"createBy\",t_supplier.create_time AS \"createTime\",t_supplier.update_by AS \"updateBy\",t_supplier.update_time AS \"updateTime\",t_supplier.is_deleted AS \"deleted\",t_supplier.id AS \"id\" FROM t_supplier WHERE name = :name AND contact_name LIKE :contact_name AND contact_name LIKE :contactName AND contact_phone = :contact_phone AND contact_phone = :contactPhone AND code LIKE :code AND create_by = :create_by AND create_by = :createBy AND create_time = :create_time AND create_time = :createTime AND update_by = :update_by AND update_by = :updateBy AND update_time = :update_time AND update_time = :updateTime AND is_deleted = 0 AND is_deleted = :deleted AND id = :id")
+                .querySql("SELECT t_customer.name AS \"name\",t_customer.contact_name AS \"contactName\",t_customer.whats_app AS \"whatsApp\",t_customer.remark AS \"remark\",t_customer.code AS \"code\",t_customer.create_by AS \"createBy\",t_customer.create_time AS \"createTime\",t_customer.update_by AS \"updateBy\",t_customer.update_time AS \"updateTime\",t_customer.is_deleted AS \"deleted\",t_customer.id AS \"id\" FROM t_customer WHERE name LIKE :name AND contact_name LIKE :contact_name AND contact_name LIKE :contactName AND whatsapp = :whatsapp AND whatsapp = :whatsApp AND remark = :remark AND code LIKE :code AND create_by = :create_by AND create_by = :createBy AND create_time = :create_time AND create_time = :createTime AND update_by = :update_by AND update_by = :updateBy AND update_time = :update_time AND update_time = :updateTime AND is_deleted = 0 AND is_deleted = :deleted AND id = :id")
                 .queryFieldList(Arrays.asList(
                         new QueryField("code", "编号"),
-//                        new QueryField("name", "供应商"),
-                        new QueryField("id", "供应商", QueryField.Type.SEARCH_SELECT, "sys_dict_supplier"),
+                        new QueryField("id", "客户", QueryField.Type.SEARCH_SELECT, "sys_dict_customer"),
                         new QueryField("contact_name", "联系人")
-//                        new QueryField("contact_phone", "联系电话"),
+//                        new QueryField("whatsApp", "whatsApp"),
+//                        new QueryField("remark", "备注"),
 //                        new QueryField("create_by", "创建人"),
 //                        new QueryField("create_time", "创建时间", QueryField.Type.DATE_RANGE),
 //                        new QueryField("update_by", "更新人"),
@@ -142,13 +153,14 @@ public class SupplierTest {
                 .reportColumnList(Arrays.asList(
                         new HiddenReportColumn("id"),
                         new ReportColumn("code", "编号"),
-                        new ReportColumn("name", "供应商"),
+                        new ReportColumn("name", "客户"),
                         new ReportColumn("contactName", "联系人"),
-                        new ReportColumn("contactPhone", "联系电话"),
+                        new ReportColumn("whatsApp", "联系电话"),
+                        new ReportColumn("remark", "备注"),
                         new ReportColumn("createBy", "创建人"),
-                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME),
+                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setColumnWidth(120).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME),
                         new ReportColumn("updateBy", "更新人"),
-                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME)
+                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setColumnWidth(120).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME)
                 ))
                 .pageable(true)
                 .sidx("createTime")

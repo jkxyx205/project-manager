@@ -22,6 +22,8 @@ import java.util.Map;
 @Builder
 public class ExportParamDTO {
 
+    Long customerId;
+
     Long productId;
 
     PriceTypeEnum priceType;

@@ -58,7 +58,6 @@ public class ProductTest {
                 .additionalInfo(Params.builder(1).pv("showSaveFormBtn", true).build())
                 .name("产品信息")
                 .repositoryName("productDAO")
-//                        .formAdviceName()
                 .storageStrategy(Form.StorageStrategyEnum.CREATE_TABLE)
                 .build());
         // 关联关系
@@ -134,19 +133,26 @@ public class ProductTest {
                 .placeholder("请输入备注")
                 .build();
 
+        CpnConfigurer descriptionCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXTAREA)
+                .name("description")
+                .label("描述")
+                .placeholder("描述")
+                .build();
+
         CpnConfigurer accessoryNameCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
                 .name("accessoryName")
-                .label("配件")
-                .placeholder("请输入配件")
+                .label("配件名")
+                .placeholder("请输入配件名")
                 .validatorList(textValidatorList)
                 .build();
 
         CpnConfigurer accessoryAmountCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.NUMBER_TEXT)
                 .name("accessoryAmount")
-                .label("单价")
-                .placeholder("请输入单价")
+                .label("配件单价")
+                .placeholder("请输入配件单价")
                 .build();
 
         CpnConfigurer labelCpn = CpnConfigurer.builder()
@@ -171,13 +177,55 @@ public class ProductTest {
                 .label("图片")
                 .build();
 
-        CpnConfigurer priceTemplateCpn = CpnConfigurer.builder()
+        CpnConfigurer usdPriceTemplateCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.FILE)
-                .name("priceTemplate")
-                .label("报价单")
+                .name("usdPriceTemplate")
+                .label("USD报价单")
                 .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, accessoryCpn, pictureCpn, priceTemplateCpn);
+        CpnConfigurer rmbPriceTemplateCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.FILE)
+                .name("rmbPriceTemplate")
+                .label("RMB报价单")
+                .build();
+
+
+        CpnConfigurer certificateCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXT)
+                .name("certificate")
+                .label("认证")
+                .placeholder("请输入认证")
+                .build();
+
+        CpnConfigurer sellingPointCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TABLE)
+                .name("sellingPoint")
+                .label("产品卖点")
+                .additionalInfo(Params.builder()
+                        .pv("columns", Arrays.asList(CpnConfigurer.builder().build()))
+                        .build())
+                .build();
+
+        CpnConfigurer leadTimeCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TABLE)
+                .name("leadTime")
+                .label("交货时间")
+                .additionalInfo(Params.builder()
+                        .pv("columns", Arrays.asList(CpnConfigurer.builder().build()))
+                        .build())
+                .build();
+
+        CpnConfigurer packingInformationCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TABLE)
+                .name("packingInformation")
+                .label("包装信息")
+                .additionalInfo(Params.builder()
+                        .pv("columns", Arrays.asList(CpnConfigurer.builder().build(), CpnConfigurer.builder().build()))
+                        .build())
+                .build();
+
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, descriptionCpn, accessoryCpn, pictureCpn, usdPriceTemplateCpn, rmbPriceTemplateCpn,
+                certificateCpn, sellingPointCpn, leadTimeCpn, packingInformationCpn);
         return cpnConfigurerList;
     }
 
@@ -190,13 +238,13 @@ public class ProductTest {
                 .tplName("tpl/list/list") // 没有特殊要求使用模版页面
 //                .tplName("tpl/list/ajax_list") // 没有特殊要求使用模版页面
                 .name("产品")
-                .reportAdviceName("operatorReportAdvice")
+                .reportAdviceName("productReportAdvice")
                 .additionalInfo(Params.builder(1).pv("operator-bar", true) // 显示操作按钮
 //                        .pv("endpoint", "products")
                         .pv(ReportConstants.ADDITIONAL_FORM_ID, "864275104153022464")
                         .pv(ReportConstants.ADDITIONAL_FORM_ACTION, "link")
                         .build()) // 显示操作按钮
-                .querySql("SELECT t_product.name AS \"name\", t_product.category_code AS \"categoryCode\", t_product.supplier_id supplierId, t_product.picture AS \"pictures\",t_product.remark AS \"remark\",t_product.instance_id AS \"instanceId\",t_product.attr_instance_id AS \"attrInstanceId\",t_product.code AS \"code\",t_product.create_by AS \"createBy\",t_product.create_time AS \"createTime\",t_product.update_by AS \"updateBy\",t_product.update_time AS \"updateTime\",t_product.is_deleted AS \"deleted\",t_product.id AS \"id\" FROM t_product WHERE name = :name AND picture = :picture AND picture = :pictures AND remark = :remark AND instance_id = :instance_id AND instance_id = :instanceId AND supplier_id = :supplierId AND category_code = :categoryCode AND code = :code AND create_by = :create_by AND create_by = :createBy AND create_time = :create_time AND create_time = :createTime AND update_by = :update_by AND update_by = :updateBy AND update_time = :update_time AND update_time = :updateTime AND is_deleted = 0 AND is_deleted = :deleted AND id = :id")
+                .querySql("SELECT t_product.name AS \"name\", t_product.category_code AS \"categoryCode\", t_product.supplier_id supplierId, t_product.picture AS \"pictures\",t_product.remark AS \"remark\",t_product.instance_id AS \"instanceId\",t_product.attr_instance_id AS \"attrInstanceId\",t_product.code AS \"code\",t_product.create_by AS \"createBy\",t_product.create_time AS \"createTime\",t_product.update_by AS \"updateBy\",t_product.update_time AS \"updateTime\",t_product.is_deleted AS \"deleted\",t_product.id AS \"id\" FROM t_product WHERE name LIKE :name AND picture = :picture AND picture = :pictures AND remark = :remark AND instance_id = :instance_id AND instance_id = :instanceId AND supplier_id = :supplierId AND category_code = :categoryCode AND code LIKE :code AND create_by = :create_by AND create_by = :createBy AND create_time = :create_time AND create_time = :createTime AND update_by = :update_by AND update_by = :updateBy AND update_time = :update_time AND update_time = :updateTime AND is_deleted = 0 AND is_deleted = :deleted AND id = :id")
                 .queryFieldList(Arrays.asList(
                         new QueryField("code", "型号"),
                         new QueryField("name", "品名"),
@@ -206,14 +254,15 @@ public class ProductTest {
                 .reportColumnList(Arrays.asList(
                         new HiddenReportColumn("id"),
                         new ReportColumn("code", "型号"),
+                        new ReportColumn("avatar", "图片").setAlign(AlignEnum.CENTER),
                         new ReportColumn("name", "品名"),
                         new ReportColumn("categoryCode", "分类", false, "sys_dict_category", Arrays.asList("dictConverter")),
                         new ReportColumn("supplierId", "供应商", false, "sys_dict_supplier", Arrays.asList("dictConverter")),
-                        new ReportColumn("remark", "备注"),
+//                        new ReportColumn("remark", "备注"),
                         new ReportColumn("createBy", "创建人"),
-                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME),
+                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120),
                         new ReportColumn("updateBy", "更新人"),
-                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME)
+                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120)
                 ))
                 .pageable(true)
                 .sidx("createTime")

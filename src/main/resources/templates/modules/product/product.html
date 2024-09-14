@@ -77,13 +77,27 @@
             display: none;
         }
 
-        .attachment.priceTemplate .attachment-items {
+        .attachment.usdPriceTemplate .attachment-items,
+        .attachment.rmbPriceTemplate .attachment-items {
             display: inline-block;
             margin-left: 15px;
         }
 
-        .attachment.priceTemplate .item:before{
+        .attachment.usdPriceTemplate .item:before,
+        .attachment.rmbPriceTemplate .item:before{
             background: transparent;
+        }
+
+        #else-form .editable-table {
+            width: 100%;
+        }
+
+        #else-form .operator-label {
+            width: 40px;
+        }
+
+        #else-form, .form-fluid {
+            align-items: flex-start;
         }
 
         /*[(${formBO.form.getAdditionalInfo['css'] == null ? '' : formBO.form.getAdditionalInfo['css']})]*/
@@ -122,19 +136,27 @@
                         <label class="col-form-label" for="rmbPrice">人民币</label>
                         <input class="form-control" type="text" id="rmbPrice" name="rmbPrice" th:value="${formBO.data.rmbPrice}" placeholder="人民币含税价格">
                     </div>
+                    <div class="form-group col-12">
+                        <label class="col-form-label" for="remark">备&nbsp;&nbsp;&nbsp;&nbsp;注</label>
+                        <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
+                    </div>
                     <div class="form-group col-12" style="margin-bottom: 0;">
                         <label class="col-form-label">参数</label>
                         <div th:id="${formBO.data['attrFormId']}">
                             <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="tpl/form/form-tag" hide-form-tag></sp:form>
                         </div>
                     </div>
-                    <div class="form-group col-12">
-                        <label class="col-form-label" for="priceTemplate">报价单</label>
-                        <sp:file form-name="t_product" name="priceTemplate" group="template" sp:value="${formBO.data.priceTemplate}" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></sp:file>
+                    <div class="form-group col-12 col-sm-6">
+                        <label class="col-form-label" for="usdPriceTemplate">$模版</label>
+                        <sp:file form-name="t_product" name="usdPriceTemplate" group="template" sp:value="${formBO.data.usdPriceTemplate}" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></sp:file>
+                    </div>
+                    <div class="form-group col-12 col-sm-6">
+                        <label class="col-form-label" for="rmbPriceTemplate">¥模版</label>
+                        <sp:file form-name="t_product" name="rmbPriceTemplate" group="template" sp:value="${formBO.data.rmbPriceTemplate}" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></sp:file>
                     </div>
                     <div class="form-group col-12">
-                        <label class="col-form-label" for="remark">备注</label>
-                        <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
+                        <label class="col-form-label" for="description">描&nbsp;&nbsp;&nbsp;&nbsp;述</label>
+                        <textarea class="form-control" id="description" name="description" th:text="${formBO.data.description}"></textarea>
                     </div>
                     <div class="form-group col-12">
                         <label class="col-form-label">配件</label>
@@ -161,6 +183,82 @@
                                         <input type="hidden" class="form-control" th:value="${col}">
                                         <img th:if="${col != ''}" height="30px" th:src="${col + '?x-oss-process=image/resize,h_30'}">
                                     </th:block>
+                                </td>
+                                <td class="operator btn-link">X</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">其他信息</div>
+            <div class="card-body">
+                <form class="form-inline" id="else-form" name="else-form">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="col-form-label" for="certificate">认证</label>
+                            <input class="form-control" type="text" id="certificate" name="certificate" th:value="${formBO.data.certificate}">
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <table class="table editable-table accessoryList table-bordered table-responsive-sm table-sm" id="sellingPoint" name="sellingPoint">
+                            <thead>
+                                <tr style="text-align: left;">
+                                    <th>
+                                        <label class="col-form-label" style="display: block">产品卖点</label>
+                                    </th>
+                                    <th class="operator-label"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="row : ${formBO.data.sellingPoint}">
+                                    <td th:each="col: ${row}">
+                                        <input type="text" class="form-control" th:value="${col}">
+                                    </td>
+                                    <td class="operator btn-link">X</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <table class="table editable-table accessoryList table-bordered table-responsive-sm table-sm" id="leadTime" name="leadTime">
+                            <thead>
+                            <tr style="text-align: left;">
+                                <th>
+                                    <label class="col-form-label" style="display: block">交货时间</label>
+                                </th>
+                                <th class="operator-label"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="row : ${formBO.data.leadTime}">
+                                <td th:each="col: ${row}">
+                                    <input type="text" class="form-control" th:value="${col}">
+                                </td>
+                                <td class="operator btn-link">X</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <table class="table editable-table accessoryList table-bordered table-responsive-sm table-sm" id="packingInformation" name="packingInformation">
+                            <thead>
+                            <tr style="text-align: left;">
+                                <th>
+                                    <label class="col-form-label" style="display: block">包装参数</label>
+                                </th>
+                                <th>
+                                    <label class="col-form-label" style="display: block">包装值</label>
+                                </th>
+                                <th class="operator-label"></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="row : ${formBO.data.packingInformation}">
+                                <td th:each="col: ${row}">
+                                    <input type="text" class="form-control" th:value="${col}">
                                 </td>
                                 <td class="operator btn-link">X</td>
                             </tr>
@@ -226,7 +324,7 @@
         let readonly = !hasAuthority || [[${query.readonly}]]
 
         let formDOM = window[formCode + 'FormDOM'] = document.forms[0]
-        sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p,readonly, actionUrl: formBO.actionUrl, method: formBO.method}, null,
+        sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p, readonly, actionUrl: formBO.actionUrl, method: formBO.method}, null,
             () => {
             // 其他验证 + error 样式
             let valid = formDOM.validElse($('#supplier').multipleSelect('getSelects').length > 0 && $('#supplier').multipleSelect('getSelects')[0] != '', document.getElementById('supplier').nextSibling)
@@ -266,6 +364,7 @@
                         }, formData => {
                             formData.attrInstanceId = res.data
                             formData.pictures = t_product_pictures_file.getAttachments();
+                            formData.certificate = document.getElementById("certificate").value
                         })
                     }
                 }, formData => {
@@ -278,9 +377,14 @@
             }
         })
 
-        function t_product_priceTemplate_file_uploadConsumer(attachment) {
+        function t_product_usdPriceTemplate_file_uploadConsumer(attachment) {
             // 删除全部
-            t_product_priceTemplate_file.deleteAllAttachment()
+            t_product_usdPriceTemplate_file.deleteAllAttachment()
+        }
+
+        function t_product_rmbPriceTemplate_file_uploadConsumer(attachment) {
+            // 删除全部
+            t_product_rmbPriceTemplate_file.deleteAllAttachment()
         }
 
         function t_product_pictures_file_itemSupplier(attachment) {
@@ -295,67 +399,88 @@
         Fancybox.bind('a.picture', {});
 
         function exportPrice() {
+            let customerDictList = /*[[${ formBO.data.customerDictList }]]*/
+            let options = []
+            options.push("<option value=''>&nbsp;</option>")
+            for (let dict of customerDictList) {
+                options.push("<option value=\""+dict.name+"\">"+dict.label+"</option>")
+            }
+
             $.dialog({
                 content: '<div class="container">\n' +
                     '    <form class="form-horizontal" id="priceForm" name="priceForm" onsubmit="return false">\n' +
                     '        <input type="hidden" id="productId" value="'+document.getElementById("id").value+'">\n' +
+                    '       <div class="form-group row">\n' +
+                    '           <label for="quantity" class="col-form-label col-sm-2 required">客&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户</label>\n' +
+                    '           <div class="col-sm-10">\n' +
+                    '               <select class="form-control" id="customerId" name="customerId">' +
+                    '                   '+options.join('')+'' +
+                    '               </select>\n' +
+                    '            </div>\n' +
+                    '       </div>\n' +
                     '        <div class="form-group row">\n' +
                     '            <label class="col-form-label col-sm-2 required">报价方式</label>\n' +
                     '            <div class="col-sm-10">\n' +
                     '                <div class="form-check col-form-label">\n' +
                     '                    <input class="form-check-input" type="radio" name="priceType" id="usdPriceType" value="1" checked="checked">\n' +
-                    '                    <label class="form-check-label" for="usdPriceType">美金未税</label>\n' +
+                    '                    <label class="form-check-label" for="usdPriceType">美金FOB</label>\n' +
                     '                </div>\n' +
                     '                <div class="form-check col-form-label">\n' +
                     '                    <input class="form-check-input" type="radio" name="priceType" id="rmbPriceType" value="0">\n' +
-                    '                    <label class="form-check-label" for="rmbPriceType">人民币含税</label>\n' +
+                    '                    <label class="form-check-label" for="rmbPriceType">人民币含税EXW</label>\n' +
                     '                </div>\n' +
                     '            </div>\n' +
                     '        </div>\n' +
-                    '        <div class="form-group row">\n' +
-                    '            <label for="rate" class="col-form-label col-sm-2">INCO term</label>\n' +
-                    '            <div class="col-sm-10">\n' +
-                    '               <select type="number" class="form-control" id="incoterm" name="incoterm" placeholder="美金报价需要填写汇率">' +
-                    '                   <option value="FOB" selected>FOB</option>' +
-                    '                   <option value="EXW">EXW</option>' +
-                    '               </select>\n' +
+                    '       <div class="form-group row">\n' +
+                    '           <label for="quantity" class="col-form-label col-sm-2 required">利润阶梯</label>\n' +
+                    '           <div class="col-sm-10">\n' +
+                    '               <input type="number" class="form-control" id="step" name="step" value="0.9" required>\n' +
                     '            </div>\n' +
-                    '        </div>\n' +
+                    '       </div>\n' +
+                    // '        <div class="form-group row">\n' +
+                    // '            <label for="rate" class="col-form-label col-sm-2">INCO term</label>\n' +
+                    // '            <div class="col-sm-10">\n' +
+                    // '               <select type="number" class="form-control" id="incoterm" name="incoterm" placeholder="美金报价需要填写汇率">' +
+                    // '                   <option value="FOB" selected>FOB</option>' +
+                    // '                   <option value="EXW">EXW</option>' +
+                    // '               </select>\n' +
+                    // '            </div>\n' +
+                    // '        </div>\n' +
                     // '        <div class="form-group row">\n' +
                     // '            <label for="rate" class="col-form-label col-sm-2">美金汇率</label>\n' +
                     // '            <div class="col-sm-10">\n' +
                     // '               <input type="number" class="form-control" id="rate" name="rate" placeholder="美金报价需要填写汇率">\n' +
                     // '            </div>\n' +
                     // '        </div>\n' +
-                    '        <div class="form-group row">\n' +
-                    '            <label class="col-form-label col-sm-2 required">利润阶梯</label>\n' +
-                    '            <div class="col-sm-10">\n' +
-                    '                <div class="form-check col-form-label">\n' +
-                    '                    <input class="form-check-input" type="radio" name="step" id="step-1" value="0.95" checked="checked">\n' +
-                    '                    <label class="form-check-label" for="step-1">0.95</label>\n' +
-                    '                </div>\n' +
-                    '                <div class="form-check col-form-label">\n' +
-                    '                    <input class="form-check-input" type="radio" name="step" id="step-2" value="0.9">\n' +
-                    '                    <label class="form-check-label" for="step-2">0.9</label>\n' +
-                    '                </div>\n' +
-                    '                <div class="form-check col-form-label">\n' +
-                    '                    <input class="form-check-input" type="radio" name="step" id="step-3" value="0.85">\n' +
-                    '                    <label class="form-check-label" for="step-3">0.85</label>\n' +
-                    '                </div>\n' +
-                    '                <div class="form-check col-form-label">\n' +
-                    '                    <input class="form-check-input" type="radio" name="step" id="step-4" value="0.8">\n' +
-                    '                    <label class="form-check-label" for="step-4">0.8</label>\n' +
-                    '                </div>\n' +
-                    '                <div class="form-check col-form-label">\n' +
-                    '                    <input class="form-check-input" type="radio" name="step" id="step-5" value="0.75">\n' +
-                    '                    <label class="form-check-label" for="step-5">0.75</label>\n' +
-                    '                </div>\n' +
-                    '                <div class="form-check col-form-label">\n' +
-                    '                    <input class="form-check-input" type="radio" name="step" id="step-6" value="0.7">\n' +
-                    '                    <label class="form-check-label" for="step-6">0.7</label>\n' +
-                    '                </div>\n' +
-                    '            </div>\n' +
-                    '        </div>\n' +
+                    // '        <div class="form-group row">\n' +
+                    // '            <label class="col-form-label col-sm-2 required">利润阶梯</label>\n' +
+                    // '            <div class="col-sm-10">\n' +
+                    // '                <div class="form-check col-form-label">\n' +
+                    // '                    <input class="form-check-input" type="radio" name="step" id="step-1" value="0.95" checked="checked">\n' +
+                    // '                    <label class="form-check-label" for="step-1">0.95</label>\n' +
+                    // '                </div>\n' +
+                    // '                <div class="form-check col-form-label">\n' +
+                    // '                    <input class="form-check-input" type="radio" name="step" id="step-2" value="0.9">\n' +
+                    // '                    <label class="form-check-label" for="step-2">0.9</label>\n' +
+                    // '                </div>\n' +
+                    // '                <div class="form-check col-form-label">\n' +
+                    // '                    <input class="form-check-input" type="radio" name="step" id="step-3" value="0.85">\n' +
+                    // '                    <label class="form-check-label" for="step-3">0.85</label>\n' +
+                    // '                </div>\n' +
+                    // '                <div class="form-check col-form-label">\n' +
+                    // '                    <input class="form-check-input" type="radio" name="step" id="step-4" value="0.8">\n' +
+                    // '                    <label class="form-check-label" for="step-4">0.8</label>\n' +
+                    // '                </div>\n' +
+                    // '                <div class="form-check col-form-label">\n' +
+                    // '                    <input class="form-check-input" type="radio" name="step" id="step-5" value="0.75">\n' +
+                    // '                    <label class="form-check-label" for="step-5">0.75</label>\n' +
+                    // '                </div>\n' +
+                    // '                <div class="form-check col-form-label">\n' +
+                    // '                    <input class="form-check-input" type="radio" name="step" id="step-6" value="0.7">\n' +
+                    // '                    <label class="form-check-label" for="step-6">0.7</label>\n' +
+                    // '                </div>\n' +
+                    // '            </div>\n' +
+                    // '        </div>\n' +
                     '       <div class="form-group row">\n' +
                     '           <label for="quantity" class="col-form-label col-sm-2 required">采购数量</label>\n' +
                     '           <div class="col-sm-10">\n' +
@@ -365,14 +490,27 @@
                     '    </form>\n' +
                     '</div>',
                 title: "报价参数",
+                mounted: function (obj) {
+                    $('#customerId').multipleSelect({
+                        filter: true,
+                        single: true,
+                        placeholder: '请选择客户'
+                    })
+                },
                 ok: {
                     label: '确定',
                     success: function (value) {
                         // console.log('success', value)
+                        let formData = $('#priceForm').form2json()
+                        if (!formData.customerId) {
+                            toastr.error('请选择客户')
+                            return
+                        }
+
                         console.log('data = ', $('#priceForm').form2json())
                         value.$modal.modal('hide')
                         $.LoadingOverlay('show')
-                        download("/products/export-price?" + $.param($('#priceForm').form2json()), () => {
+                        download("/products/export-price?" + $.param(formData), () => {
                             toastr.success("报价单导出完成")
                             $.LoadingOverlay('hide')
                         });
