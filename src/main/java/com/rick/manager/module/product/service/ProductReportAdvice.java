@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Rick.Xu
@@ -40,8 +41,10 @@ public class ProductReportAdvice extends OperatorReportAdvice {
                 }
 
                 row.put("pictures", pictures);
+                row.put("pictureUrls", pictures.stream().map(map -> (String)map.get("url")).collect(Collectors.joining(",")));
             } else {
                 row.put("pictures", Collections.emptyList());
+                row.put("pictureUrls", "");
             }
         }
     }
@@ -53,7 +56,17 @@ public class ProductReportAdvice extends OperatorReportAdvice {
 
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_JS, "$('table tr').find('td:eq(3)').each(function(index){\n" +
                 "    $(this).html('<a class=\"picture\" data-fancybox=\"picture-'+index+'\" data-src=\"'+$(this).text().trim()+'\"><img height=\"20\" src=\"'+$(this).text().trim()+'?x-oss-process=image/resize,h_20\"/></a>')\n" +
-                "    \n" +
+                "    let pictureUrls = $(this).siblings(\"input[name='pictureUrls']\").val();\n" +
+                "        let pictureHtml = []\n" +
+                "        if (pictureUrls) {\n" +
+                "            let urlArr = pictureUrls.split(',');\n" +
+                "            if (urlArr.length > 1) {\n" +
+                "                for (let i = 1; i < urlArr.length; i++) {\n" +
+                "                    pictureHtml.push('<a class=\"picture\" style=\"display: none;\" data-fancybox=\"picture-'+index+'\" data-src=\"'+urlArr[i]+'\"></a>');\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "        $(this).append(pictureHtml.join(''))" +
                 "})\n" +
                 "$(function() {Fancybox.bind('a.picture', {})})");
     }
