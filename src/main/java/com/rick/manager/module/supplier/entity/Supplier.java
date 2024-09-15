@@ -1,10 +1,14 @@
 package com.rick.manager.module.supplier.entity;
 
 import com.rick.db.dto.BaseCodeEntity;
+import com.rick.db.plugin.dao.annotation.Column;
 import com.rick.db.plugin.dao.annotation.Table;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Rick.Xu
@@ -24,5 +28,11 @@ public class Supplier extends BaseCodeEntity<Long> {
     String contactName;
 
     String contactPhone;
+
+    @Column(value = "attachment", comment = "附件")
+    List<Map> attachmentList;
+
+    @Column(columnDefinition = "text")
+    String remark;
 
 }

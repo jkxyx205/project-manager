@@ -109,8 +109,21 @@ public class SupplierTest {
                 .validatorList(textValidatorList)
                 .build();
 
+        CpnConfigurer attachmentCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.FILE)
+                .name("attachment")
+                .label("附件")
+                .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, contactNameCpn, contactPhoneCpn);
+        CpnConfigurer remarkCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXTAREA)
+                .name("remark")
+                .label("备注")
+                .placeholder("请输入备注")
+                .build();
+
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, contactNameCpn, contactPhoneCpn,
+                attachmentCpn, remarkCpn);
         return cpnConfigurerList;
     }
 
