@@ -4,8 +4,7 @@
     <link rel="stylesheet" th:href="@{/css/tab-common.css}">
     <link rel="stylesheet" th:href="@{/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css}">
     <link rel="stylesheet" th:href="@{/plugins/multiple-select/multiple-select.min.css}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css"
-    />
+    <link rel="stylesheet" th:href="@{/plugins/fancybox/fancybox.css}">
 
     <style>
         .form-check {
@@ -119,7 +118,7 @@
                         <label class="col-form-label required" for="name">品&nbsp;&nbsp;&nbsp;&nbsp;名</label>
                         <input class="form-control" type="text" id="name" name="name" th:value="${formBO.data.name}" required>
                     </div>
-                    <div class="form-group col-4 col-sm-4">
+                    <div class="form-group col-12 col-sm-4">
                         <label class="col-form-label required" for="category">分类</label>
                         <sp:select class="form-control" id="category" name="category" key="PRODUCT_TYPE" th:value="${formBO.data.category ne null ? formBO.data.category : ''}" required />
                     </div>
@@ -127,7 +126,10 @@
                         <label class="col-form-label required" for="supplier">供应商</label>
                         <sp:select class="form-control" id="supplier" name="supplier" key="sys_dict_supplier" th:value="${formBO.data.supplier ne null ? formBO.data.supplier : ''}" required />
                     </div>
-                    <div class="form-group col-sm-4 d-none d-sm-block"></div>
+                    <div class="form-group col-4 col-sm-4">
+                        <label class="col-form-label required" for="supplierCode">型&nbsp;&nbsp;&nbsp;&nbsp;号</label>
+                        <input class="form-control" type="text" id="supplierCode" supplierCode="name" th:value="${formBO.data.supplierCode}" required>
+                    </div>
                     <div class="form-group col-4">
                         <label class="col-form-label" for="usdPrice">美&nbsp;&nbsp;&nbsp;&nbsp;金</label>
                         <input class="form-control" type="text" id="usdPrice" name="usdPrice" th:value="${formBO.data.usdPrice}" placeholder="美金未税价格">
@@ -300,7 +302,7 @@
 <th:block th:replace="includes/base :: common_js(~{::script})">
     <script type="text/javascript" th:src="@{/plugins/jquery.form2json.js}"></script>
 
-    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+    <script type="text/javascript" th:src="@{/plugins/fancybox/fancybox.min.js}"></script>
 
     <script th:src="@{/plugins/ajaxfileupload.js}"></script>
     <script th:src="@{/js/upload.js}"></script>

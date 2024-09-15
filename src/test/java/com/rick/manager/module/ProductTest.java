@@ -112,6 +112,14 @@ public class ProductTest {
                 .validatorList(Arrays.asList(requiredValidator))
                 .build();
 
+        CpnConfigurer supplierCodeCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXT)
+                .name("supplierCode")
+                .label("型号")
+                .placeholder("请输入供应商产品型号")
+                .validatorList(textValidatorList)
+                .build();
+
         CpnConfigurer rmbPriceCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.NUMBER_TEXT)
                 .name("rmbPrice")
@@ -224,7 +232,7 @@ public class ProductTest {
                         .build())
                 .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, descriptionCpn, accessoryCpn, pictureCpn, usdPriceTemplateCpn, rmbPriceTemplateCpn,
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, supplierCodeCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, descriptionCpn, accessoryCpn, pictureCpn, usdPriceTemplateCpn, rmbPriceTemplateCpn,
                 certificateCpn, sellingPointCpn, leadTimeCpn, packingInformationCpn);
         return cpnConfigurerList;
     }

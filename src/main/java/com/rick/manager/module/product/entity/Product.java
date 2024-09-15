@@ -48,6 +48,8 @@ public class Product extends BaseCodeEntity<Long> {
     @JsonDeserialize(using = EntityWithLongIdPropertyDeserializer.class)
     Supplier supplier;
 
+    String supplierCode;
+
     BigDecimal rmbPrice;
 
     BigDecimal usdPrice;
