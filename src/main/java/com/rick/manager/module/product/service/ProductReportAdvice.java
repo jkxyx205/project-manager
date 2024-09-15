@@ -48,8 +48,8 @@ public class ProductReportAdvice extends OperatorReportAdvice {
 
     @Override
     public void init(Report report) {
-        report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_LINK, "<link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css\"");
-        report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_SCRIPT,"<script src=\"https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js\"></script>");
+        report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_LINK, "<link rel=\"stylesheet\" href=\"/plugins/fancybox/fancybox.css\"");
+        report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_SCRIPT,"<script src=\"/plugins/fancybox/fancybox.min.js\"></script>");
 
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_JS, "$('table tr').find('td:eq(3)').each(function(index){\n" +
                 "    $(this).html('<a class=\"picture\" data-fancybox=\"picture-'+index+'\" data-src=\"'+$(this).text().trim()+'\"><img height=\"20\" src=\"'+$(this).text().trim()+'?x-oss-process=image/resize,h_20\"/></a>')\n" +
