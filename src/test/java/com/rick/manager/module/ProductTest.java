@@ -270,7 +270,8 @@ public class ProductTest {
                         new ReportColumn("createBy", "创建人"),
                         new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120),
                         new ReportColumn("updateBy", "更新人"),
-                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120)
+                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120),
+                        new HiddenReportColumn("pictureUrls")
                 ))
                 .pageable(true)
                 .sidx("createTime")

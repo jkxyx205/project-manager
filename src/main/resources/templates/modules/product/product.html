@@ -72,10 +72,6 @@
             margin-bottom: 0;
         }
 
-        .attachment_delete_btn {
-            display: none;
-        }
-
         .attachment.usdPriceTemplate .attachment-items,
         .attachment.rmbPriceTemplate .attachment-items {
             display: inline-block;
@@ -91,12 +87,18 @@
             width: 100%;
         }
 
-        #else-form .operator-label {
-            width: 40px;
-        }
-
         #else-form, .form-fluid {
             align-items: flex-start;
+        }
+
+        @media screen and (min-width: 576px) {
+            .form-inline .editable-table.accessoryList, .param-container {
+                width: calc(100% - 75px);
+            }
+
+            #param {
+                width: 100%;
+            }
         }
 
         /*[(${formBO.form.getAdditionalInfo['css'] == null ? '' : formBO.form.getAdditionalInfo['css']})]*/
@@ -144,7 +146,7 @@
                     </div>
                     <div class="form-group col-12" style="margin-bottom: 0;">
                         <label class="col-form-label">参数</label>
-                        <div th:id="${formBO.data['attrFormId']}">
+                        <div th:id="${formBO.data['attrFormId']}" class="param-container">
                             <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="tpl/form/form-tag" hide-form-tag></sp:form>
                         </div>
                     </div>
@@ -174,7 +176,7 @@
                                 <th style="width: 100px;">
                                     <label class="col-form-label" style="display: block; width: 100%; text-align: center">图片</label>
                                 </th>
-                                <th></th>
+                                <th class="operator-label"></th>
                             </tr>
                             </thead>
                             <tbody>
