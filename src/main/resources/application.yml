@@ -65,3 +65,8 @@ dict:
       sql: "select id, name from t_supplier"
     - type: sys_dict_customer
       sql: "select id, name from t_customer"
+    - type: "t_country"
+      sql: "select id, cname name, case when continent_id = 1 then '亚洲' when continent_id = 2 then '欧洲' when continent_id = 3 then '非洲' when continent_id = 4 then '大洋洲' when continent_id = 6 then '北美洲' when continent_id = 7 then '南美洲' end parent_name from t_country order by continent_id"
+
+#props:
+#  items: {"t_country": "select id, cname name, case when continent_id = 1 then '亚洲' when continent_id = 2 then '欧洲' when continent_id = 3 then '非洲' when continent_id = 4 then '大洋洲' when continent_id = 6 then '北美洲' when continent_id = 7 then '南美洲' end parent_name from t_country order by continent_id"}
