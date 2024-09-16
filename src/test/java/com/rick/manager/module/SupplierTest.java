@@ -13,7 +13,10 @@ import com.rick.formflow.form.valid.Length;
 import com.rick.formflow.form.valid.Required;
 import com.rick.formflow.form.valid.core.Validator;
 import com.rick.report.core.entity.Report;
-import com.rick.report.core.model.*;
+import com.rick.report.core.model.HiddenReportColumn;
+import com.rick.report.core.model.QueryField;
+import com.rick.report.core.model.ReportColumn;
+import com.rick.report.core.model.SordEnum;
 import com.rick.report.core.service.ReportService;
 import com.rick.report.core.support.ReportConstants;
 import org.junit.jupiter.api.Test;
@@ -93,6 +96,13 @@ public class SupplierTest {
                 .validatorList(textValidatorList)
                 .build();
 
+        CpnConfigurer addressCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXT)
+                .name("address")
+                .label("地址")
+                .placeholder("请输入供应商地址")
+                .build();
+
         CpnConfigurer contactNameCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
                 .name("contactName")
@@ -122,7 +132,7 @@ public class SupplierTest {
                 .placeholder("请输入备注")
                 .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, contactNameCpn, contactPhoneCpn,
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, addressCpn, contactNameCpn, contactPhoneCpn,
                 attachmentCpn, remarkCpn);
         return cpnConfigurerList;
     }
@@ -135,17 +145,18 @@ public class SupplierTest {
                 .tplName("tpl/list/ajax_list") // 拷贝模版页面到指定目录
 //                .tplName("tpl/list/list") // 没有特殊要求使用模版页面
                 .name("供应商")
-                .reportAdviceName("operatorReportAdvice")
+                .reportAdviceName("supplierReportAdvice")
                 .additionalInfo(Params.builder(2)
                         .pv("operator-bar", true) // 显示操作按钮
                         .pv(ReportConstants.ADDITIONAL_FORM_ID, "864249380058771456")
                         .build()) // 显示操作按钮
-                .querySql("SELECT t_supplier.name AS \"name\",t_supplier.contact_name AS \"contactName\",t_supplier.contact_phone AS \"contactPhone\",t_supplier.code AS \"code\",t_supplier.create_by AS \"createBy\",t_supplier.create_time AS \"createTime\",t_supplier.update_by AS \"updateBy\",t_supplier.update_time AS \"updateTime\",t_supplier.is_deleted AS \"deleted\",t_supplier.id AS \"id\" FROM t_supplier WHERE name = :name AND contact_name LIKE :contact_name AND contact_name LIKE :contactName AND contact_phone = :contact_phone AND contact_phone = :contactPhone AND code LIKE :code AND create_by = :create_by AND create_by = :createBy AND create_time = :create_time AND create_time = :createTime AND update_by = :update_by AND update_by = :updateBy AND update_time = :update_time AND update_time = :updateTime AND is_deleted = 0 AND is_deleted = :deleted AND id = :id")
+                .querySql("SELECT t_supplier.name AS \"name\",t_supplier.address AS \"address\",t_supplier.contact_name AS \"contactName\",t_supplier.contact_phone AS \"contactPhone\",t_supplier.code AS \"code\", attachment, t_supplier.create_by AS \"createBy\",t_supplier.create_time AS \"createTime\",t_supplier.update_by AS \"updateBy\",t_supplier.update_time AS \"updateTime\",t_supplier.is_deleted AS \"deleted\",t_supplier.id AS \"id\" FROM t_supplier WHERE " +
+                        "(name LIKE :keyword OR contact_name LIKE :keyword OR contact_phone LIKE :keyword OR id = :id) AND is_deleted = 0")
                 .queryFieldList(Arrays.asList(
-                        new QueryField("code", "编号"),
+//                        new QueryField("code", "编号"),
 //                        new QueryField("name", "供应商"),
-                        new QueryField("id", "供应商", QueryField.Type.SEARCH_SELECT, "sys_dict_supplier"),
-                        new QueryField("contact_name", "联系人")
+//                        new QueryField("id", "供应商", QueryField.Type.SEARCH_SELECT, "sys_dict_supplier"),
+                        new QueryField("keyword", "关键字")
 //                        new QueryField("contact_phone", "联系电话"),
 //                        new QueryField("create_by", "创建人"),
 //                        new QueryField("create_time", "创建时间", QueryField.Type.DATE_RANGE),
@@ -154,14 +165,16 @@ public class SupplierTest {
                 ))
                 .reportColumnList(Arrays.asList(
                         new HiddenReportColumn("id"),
-                        new ReportColumn("code", "编号"),
+//                        new ReportColumn("code", "编号"),
                         new ReportColumn("name", "供应商"),
                         new ReportColumn("contactName", "联系人"),
                         new ReportColumn("contactPhone", "联系电话"),
-                        new ReportColumn("createBy", "创建人"),
-                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME),
-                        new ReportColumn("updateBy", "更新人"),
-                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME)
+                        new ReportColumn("address", "地址"),
+                        new ReportColumn("attachment", "附件")
+//                        new ReportColumn("createBy", "创建人"),
+//                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME),
+//                        new ReportColumn("updateBy", "更新人"),
+//                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME)
                 ))
                 .pageable(true)
                 .sidx("createTime")

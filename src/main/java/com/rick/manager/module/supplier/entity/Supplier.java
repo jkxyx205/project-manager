@@ -25,6 +25,8 @@ public class Supplier extends BaseCodeEntity<Long> {
 
     String name;
 
+    String address;
+
     String contactName;
 
     String contactPhone;
