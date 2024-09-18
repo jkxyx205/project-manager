@@ -151,7 +151,7 @@ public class SupplierTest {
                         .pv(ReportConstants.ADDITIONAL_FORM_ID, "864249380058771456")
                         .build()) // 显示操作按钮
                 .querySql("SELECT t_supplier.name AS \"name\",t_supplier.address AS \"address\",t_supplier.contact_name AS \"contactName\",t_supplier.contact_phone AS \"contactPhone\",t_supplier.code AS \"code\", attachment, t_supplier.create_by AS \"createBy\",t_supplier.create_time AS \"createTime\",t_supplier.update_by AS \"updateBy\",t_supplier.update_time AS \"updateTime\",t_supplier.is_deleted AS \"deleted\",t_supplier.id AS \"id\" FROM t_supplier WHERE " +
-                        "(name LIKE :keyword OR contact_name LIKE :keyword OR contact_phone LIKE :keyword OR id = :id) AND is_deleted = 0")
+                        "(code LIKE :keyword OR name LIKE :keyword OR contact_name LIKE :keyword OR contact_phone LIKE :keyword OR id = :id) AND is_deleted = 0")
                 .queryFieldList(Arrays.asList(
 //                        new QueryField("code", "编号"),
 //                        new QueryField("name", "供应商"),
