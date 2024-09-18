@@ -197,12 +197,18 @@ public class ProductTest {
                 .label("RMB报价单")
                 .build();
 
-
         CpnConfigurer certificateCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
                 .name("certificate")
                 .label("认证")
                 .placeholder("请输入认证")
+                .build();
+
+        CpnConfigurer moqCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXT)
+                .name("moq")
+                .label("最小起订量")
+                .placeholder("请输入最小起订量")
                 .build();
 
         CpnConfigurer sellingPointCpn = CpnConfigurer.builder()
@@ -233,7 +239,7 @@ public class ProductTest {
                 .build();
 
         List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, categoryCpn, supplierCpn, supplierCodeCpn, rmbPriceCpn, usdPriceCpn, remarkCpn, descriptionCpn, accessoryCpn, pictureCpn, usdPriceTemplateCpn, rmbPriceTemplateCpn,
-                certificateCpn, sellingPointCpn, leadTimeCpn, packingInformationCpn);
+                certificateCpn, moqCpn, sellingPointCpn, leadTimeCpn, packingInformationCpn);
         return cpnConfigurerList;
     }
 
@@ -267,10 +273,10 @@ public class ProductTest {
                         new ReportColumn("categoryCode", "分类", false, "sys_dict_category", Arrays.asList("dictConverter")),
                         new ReportColumn("supplierId", "供应商", false, "sys_dict_supplier", Arrays.asList("dictConverter")),
 //                        new ReportColumn("remark", "备注"),
-                        new ReportColumn("createBy", "创建人"),
-                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120),
-                        new ReportColumn("updateBy", "更新人"),
-                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120),
+//                        new ReportColumn("createBy", "创建人"),
+//                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120),
+//                        new ReportColumn("updateBy", "更新人"),
+//                        new ReportColumn("updateTime", "更新时间", false, null, Arrays.asList("localDateTimeConverter")).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME).setColumnWidth(120),
                         new HiddenReportColumn("pictureUrls")
                 ))
                 .pageable(true)

@@ -6,9 +6,16 @@ import com.rick.formflow.form.service.bo.FormBO;
 import com.rick.meta.dict.entity.Dict;
 import com.rick.meta.dict.service.DictService;
 import lombok.RequiredArgsConstructor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -41,6 +48,8 @@ public class ProductFormAdvice implements FormAdvice {
         // 获取客户信息
         List<Dict> customerDictList = dictService.getDictByType("sys_dict_customer");
         valueMap.put("customerDictList", customerDictList);
+
+        valueMap.put("rate", getRateFromBaidu());
     }
 
     @Override
@@ -51,6 +60,25 @@ public class ProductFormAdvice implements FormAdvice {
             optional.ifPresent(dict -> {
                 valueMap.put("attrFormId", dict.getRemark());
             });
+        }
+    }
+
+    private String getRateFromBaidu() {
+        OkHttpClient client;
+        client = new OkHttpClient().newBuilder()
+                .build();
+        Request request = new Request.Builder()
+                .url("https://www.soltarot.com/huilv/USD_CNY/1.html")
+                .build();
+        try {
+            Response response = client.newCall(request).execute();
+            Document document = Jsoup.parse(response.body().string());
+            Element element = document.selectFirst(".t");
+            // <p class="t">7.092<span class="faded-digits"></span> 人民币（CNY）</p>
+            String text = element.text();
+            return text.substring(0, 4);
+        } catch (IOException e) {
+            return "";
         }
     }
 }

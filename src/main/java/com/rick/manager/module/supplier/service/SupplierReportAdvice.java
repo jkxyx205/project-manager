@@ -6,9 +6,6 @@ import com.rick.report.core.entity.Report;
 import com.rick.report.core.support.ReportConstants;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-
 /**
  * @author Rick.Xu
  * @date 2024/9/17 07:08
@@ -18,16 +15,6 @@ public class SupplierReportAdvice extends OperatorReportAdvice {
 
     public SupplierReportAdvice(SharpService sharpService) {
         super(sharpService);
-    }
-
-    @Override
-    public void beforeSetRow(Report report, List<Map<String, Object>> rows) {
-//        for (Map<String, Object> row : rows) {
-//            if (StringUtils.isNotBlank((String) row.get("attachment"))) {
-//                List<Map> list = JsonUtils.toList((String)row.get("attachment"), Map.class);
-//                row.put("attachment", list);
-//            }
-//        }
     }
 
     @Override

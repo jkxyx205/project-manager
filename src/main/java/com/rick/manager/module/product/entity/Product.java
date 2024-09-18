@@ -8,6 +8,7 @@ import com.rick.db.plugin.dao.annotation.Column;
 import com.rick.db.plugin.dao.annotation.Embedded;
 import com.rick.db.plugin.dao.annotation.ManyToOne;
 import com.rick.db.plugin.dao.annotation.Table;
+import com.rick.manager.module.product.model.ExportParamDTO;
 import com.rick.manager.module.supplier.entity.Supplier;
 import com.rick.meta.config.validator.DictValueCheck;
 import com.rick.meta.dict.model.DictType;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Rick.Xu
@@ -81,7 +83,13 @@ public class Product extends BaseCodeEntity<Long> {
 
     String certificate;
 
+    String moq;
+
     List<List<String>> leadTime;
 
     List<List<String>> packingInformation;
+
+    public ExportParamDTO.PriceTypeEnum getPriceType() {
+        return Objects.nonNull(usdPrice) ? ExportParamDTO.PriceTypeEnum.USD : (Objects.nonNull(rmbPrice) ? ExportParamDTO.PriceTypeEnum.RMB : null);
+    }
 }

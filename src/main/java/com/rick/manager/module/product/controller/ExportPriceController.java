@@ -9,6 +9,7 @@ import com.rick.formflow.form.service.FormService;
 import com.rick.formflow.form.service.bo.FormBO;
 import com.rick.manager.module.customer.entity.Customer;
 import com.rick.manager.module.customer.service.CustomerService;
+import com.rick.manager.module.product.constant.PriceConstants;
 import com.rick.manager.module.product.entity.Product;
 import com.rick.manager.module.product.model.ExportParamDTO;
 import com.rick.manager.module.product.service.ProductService;
@@ -36,10 +37,7 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Rick.Xu
@@ -93,10 +91,28 @@ public class ExportPriceController {
         Font boldFont = boldFont(excelWriter.getBook());
         excelWriter.getBook().setSheetName(0, product.getCode());
 
-        excelWriter.writeCell(new ExcelCell(1, 5, "Company: " + customer.getName()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
-        excelWriter.writeCell(new ExcelCell(1, 6, "Address: " + customer.getAddress()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
-        excelWriter.writeCell(new ExcelCell(1, 7, "Contact: " + customer.getContactName()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
-        excelWriter.writeCell(new ExcelCell(1, 8, "Whats App: " + customer.getWhatsApp()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 11, boldFont));
+        int customerInfoStartIndex = 5;
+        if (StringUtils.isNotBlank(customer.getName())) {
+            excelWriter.writeCell(new ExcelCell(1, customerInfoStartIndex, "Company: " + customer.getName()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
+            customerInfoStartIndex++;
+        }
+
+        if (StringUtils.isNotBlank(customer.getAddress())) {
+            excelWriter.writeCell(new ExcelCell(1, customerInfoStartIndex, "Address: " + customer.getAddress()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
+            customerInfoStartIndex++;
+        }
+
+        if (StringUtils.isNotBlank(customer.getContactName())) {
+            excelWriter.writeCell(new ExcelCell(1, customerInfoStartIndex, "Contact: " + customer.getContactName()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
+            customerInfoStartIndex++;
+        }
+
+        if (StringUtils.isNotBlank(customer.getWhatsApp())) {
+            excelWriter.writeCell(new ExcelCell(1, customerInfoStartIndex, "Whats App: " + customer.getWhatsApp()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
+        }
+
+        BigDecimal tax = product.getPriceType() == ExportParamDTO.PriceTypeEnum.RMB ? PriceConstants.rate : BigDecimal.ONE;
+        BigDecimal actualProductPrice = product.getPriceType() == ExportParamDTO.PriceTypeEnum.USD ? product.getUsdPrice() : product.getRmbPrice();
 
         excelWriter.writeCell(new ExcelCell(5, 5, "CPS" + Time2StringUtils.format(now).replace("-", "")));
         excelWriter.writeCell(new ExcelCell(5, 6, now.format(DateTimeFormatter.ofPattern("MMM d, yyyy"))));
@@ -105,9 +121,8 @@ public class ExportPriceController {
         StringBuilder paramBuilder = new StringBuilder();
         Map<String, Object> propertyData = formBO.getPropertyData();
 
-
         // 产品
-        BigDecimal productPrice = (exportParam.getPriceType() == ExportParamDTO.PriceTypeEnum.USD ? product.getUsdPrice() : product.getRmbPrice()).divide(new BigDecimal(exportParam.getStep()), 2, RoundingMode.HALF_UP);
+        BigDecimal productPrice = getCalculatePrice(exportParam, product, actualProductPrice, tax);
 
         BigDecimal totalPrice = BigDecimal.ZERO;
         totalPrice = totalPrice.add(productPrice);
@@ -151,6 +166,17 @@ public class ExportPriceController {
         excelWriter.writeCell(new ExcelCell(4, 11, exportParam.getQuantity()));
         excelWriter.writeCell(new ExcelCell(5, 11, productPrice));
         excelWriter.writeCell(new ExcelCell(6, 11, new BigDecimal(BigDecimalUtils.formatBigDecimalValue(productPrice.multiply(BigDecimal.valueOf(exportParam.getQuantity()))))));
+        if (StringUtils.isNotBlank(product.getMoq())) {
+            excelWriter.writeCell(new ExcelCell(7, 8, exportParam.getQuantity() < Integer.parseInt(StringUtils.substringBefore(product.getMoq(), "p")) ? "数量少于MOQ。单价可能发生变化。请与供应商确认价格。" : "数量大于MOQ。请与供应商讲价，获取更优惠的价格！"));
+        }
+
+        // 计算过程
+        excelWriter.writeCell(new ExcelCell(7, 9, product.getPriceType() == ExportParamDTO.PriceTypeEnum.USD ? "$" : "¥"));
+        excelWriter.writeCell(new ExcelCell(7, 11, Objects.nonNull(product.getUsdPrice()) ? product.getUsdPrice() : product.getRmbPrice()));
+        excelWriter.writeCell(new ExcelCell(8, 11, tax));
+        excelWriter.writeCell(new ExcelCell(9, 11, exportParam.getStep()));
+        excelWriter.writeCell(new ExcelCell(10, 11, exportParam.getRate()));
+        excelWriter.writeCell(new ExcelCell(11, 11, productPrice));
 
         if (CollectionUtils.isNotEmpty(product.getPictures())) {
             // 插入图片
@@ -173,15 +199,23 @@ public class ExportPriceController {
                 BigDecimal accessoryTotalPrice = null;
 
                 if (StringUtils.isNotBlank(param.get(1))) {
-                    accessoryPrice = new BigDecimal(param.get(1)).divide(new BigDecimal(exportParam.getStep()), 2, RoundingMode.HALF_UP);;
+                    accessoryPrice = new BigDecimal(param.get(1)).divide(new BigDecimal(exportParam.getStep()), 4, RoundingMode.HALF_UP).divide(tax, 2, RoundingMode.HALF_UP);
+                    accessoryPrice = getCalculatePrice(exportParam, product, accessoryPrice, tax);
+
                     accessoryTotalPrice = new BigDecimal(BigDecimalUtils.formatBigDecimalValue(accessoryPrice.multiply(BigDecimal.valueOf(exportParam.getQuantity()))));
                     totalPrice = totalPrice.add(accessoryPrice);
                 }
 
-                dataList.add(new Object[] { index++, null, name, exportParam.getQuantity(), accessoryPrice, accessoryTotalPrice });
+                dataList.add(new Object[] { index++, null, name, exportParam.getQuantity(),
+                        BigDecimalUtils.formatBigDecimalValue(accessoryPrice), accessoryTotalPrice,
+                        BigDecimalUtils.formatBigDecimalValue(StringUtils.isBlank(param.get(1)) ? null : new BigDecimal(param.get(1))), tax, BigDecimalUtils.formatBigDecimalValue(new BigDecimal(exportParam.getStep())), BigDecimalUtils.formatBigDecimalValue(exportParam.getRate()), accessoryPrice});
             }
 
-            excelWriter.insertAndWriteRowWithAfterRowStyle(accessoryStart, dataList, null);
+            excelWriter.insertAndWriteRowWithAfterRowStyle2(accessoryStart, dataList, (ecell, cell) -> {
+                if (ecell.getX() == 11) {
+                    cell.setCellFormula("IF(AND(G9=\"¥\",K9=\"$\"),G11/I11/J11/H11,IF(AND(G9=\"$\",K9=\"¥\"),G11/I11*J11,G11/I11/H11))".replace("11", ecell.getY() + ""));
+                }
+            });
 
             // 插入图片
             int index2 = 0;
@@ -220,12 +254,13 @@ public class ExportPriceController {
 
         // 认证
         excelWriter.writeCell(new ExcelCell(3, elseStartIndex , product.getCertificate()));
+        excelWriter.writeCell(new ExcelCell(3, elseStartIndex + 2 , product.getMoq()));
 
         // 交货时间
         if (CollectionUtils.isNotEmpty(product.getLeadTime())) {
             int index = 0;
             for (List<String> value : product.getLeadTime()) {
-                excelWriter.writeCell(new ExcelCell(3, elseStartIndex + 2 + index, value.get(0)));
+                excelWriter.writeCell(new ExcelCell(3, elseStartIndex + 4 + index, value.get(0)));
                 index++;
             }
         }
@@ -241,6 +276,19 @@ public class ExportPriceController {
         }
 
         excelWriter.toFile(os);
+    }
+
+    private BigDecimal getCalculatePrice(ExportParamDTO exportParam, Product product, BigDecimal actualProductPrice, BigDecimal tax) {
+        BigDecimal multiply = new BigDecimal(exportParam.getStep()).multiply(tax);
+
+        if (product.getPriceType() == ExportParamDTO.PriceTypeEnum.RMB && exportParam.getPriceType() == ExportParamDTO.PriceTypeEnum.USD) {
+            multiply = multiply.multiply(exportParam.getRate());
+        } else if (product.getPriceType() == ExportParamDTO.PriceTypeEnum.USD && exportParam.getPriceType() == ExportParamDTO.PriceTypeEnum.RMB) {
+            actualProductPrice = actualProductPrice.multiply(exportParam.getRate());
+        } else {
+            exportParam.setRate(null);
+        }
+        return actualProductPrice.divide(multiply, 2, RoundingMode.HALF_UP);
     }
 
     private CellStyle boldFontStyle(Workbook workbook) {

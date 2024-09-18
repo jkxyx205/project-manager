@@ -159,7 +159,7 @@
                         <sp:file form-name="t_product" name="rmbPriceTemplate" group="template" sp:value="${formBO.data.rmbPriceTemplate}" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></sp:file>
                     </div>
                     <div class="form-group col-12">
-                        <label class="col-form-label" for="description">描&nbsp;&nbsp;&nbsp;&nbsp;述</label>
+                        <label class="col-form-label" for="description">含配件</label>
                         <textarea class="form-control" id="description" name="description" th:text="${formBO.data.description}"></textarea>
                     </div>
                     <div class="form-group col-12">
@@ -204,6 +204,12 @@
                         <div class="form-group">
                             <label class="col-form-label" for="certificate">认证</label>
                             <input class="form-control" type="text" id="certificate" name="certificate" th:value="${formBO.data.certificate}">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label class="col-form-label" for="moq">MOQ</label>
+                            <input class="form-control" type="text" id="moq" name="moq" th:value="${formBO.data.moq}">
                         </div>
                     </div>
                     <div class="col-12 col-sm-4">
@@ -369,6 +375,7 @@
                             formData.attrInstanceId = res.data
                             formData.pictures = t_product_pictures_file.getAttachments();
                             formData.certificate = document.getElementById("certificate").value
+                            formData.moq = document.getElementById("moq").value
                         })
                     }
                 }, formData => {
@@ -403,6 +410,7 @@
         Fancybox.bind('a.picture', {});
 
         function exportPrice() {
+            let rate = /*[[${ formBO.data.rate }]]*/
             let customerDictList = /*[[${ formBO.data.customerDictList }]]*/
             let options = []
             options.push("<option value=''>&nbsp;</option>")
@@ -423,7 +431,7 @@
                     '            </div>\n' +
                     '       </div>\n' +
                     '        <div class="form-group row">\n' +
-                    '            <label class="col-form-label col-sm-2 required">报价方式</label>\n' +
+                    '            <label class="col-form-label col-sm-2 required">报价币别</label>\n' +
                     '            <div class="col-sm-10">\n' +
                     '                <div class="form-check col-form-label">\n' +
                     '                    <input class="form-check-input" type="radio" name="priceType" id="usdPriceType" value="1" checked="checked">\n' +
@@ -435,8 +443,14 @@
                     '                </div>\n' +
                     '            </div>\n' +
                     '        </div>\n' +
+                    '        <div class="form-group row">\n' +
+                    '            <label for="rate" class="col-form-label col-sm-2">汇率</label>\n' +
+                    '            <div class="col-sm-10">\n' +
+                    '               <input type="number" class="form-control" id="rate" name="rate" value="'+rate+'">\n' +
+                    '            </div>\n' +
+                    '        </div>\n' +
                     '       <div class="form-group row">\n' +
-                    '           <label for="quantity" class="col-form-label col-sm-2 required">利润阶梯</label>\n' +
+                    '           <label for="quantity" class="col-form-label col-sm-2 required">利润率</label>\n' +
                     '           <div class="col-sm-10">\n' +
                     '               <input type="number" class="form-control" id="step" name="step" value="0.9" required>\n' +
                     '            </div>\n' +
@@ -451,13 +465,7 @@
                     // '            </div>\n' +
                     // '        </div>\n' +
                     // '        <div class="form-group row">\n' +
-                    // '            <label for="rate" class="col-form-label col-sm-2">美金汇率</label>\n' +
-                    // '            <div class="col-sm-10">\n' +
-                    // '               <input type="number" class="form-control" id="rate" name="rate" placeholder="美金报价需要填写汇率">\n' +
-                    // '            </div>\n' +
-                    // '        </div>\n' +
-                    // '        <div class="form-group row">\n' +
-                    // '            <label class="col-form-label col-sm-2 required">利润阶梯</label>\n' +
+                    // '            <label class="col-form-label col-sm-2 required">利润率</label>\n' +
                     // '            <div class="col-sm-10">\n' +
                     // '                <div class="form-check col-form-label">\n' +
                     // '                    <input class="form-check-input" type="radio" name="step" id="step-1" value="0.95" checked="checked">\n' +
@@ -486,7 +494,7 @@
                     // '            </div>\n' +
                     // '        </div>\n' +
                     '       <div class="form-group row">\n' +
-                    '           <label for="quantity" class="col-form-label col-sm-2 required">采购数量</label>\n' +
+                    '           <label for="quantity" class="col-form-label col-sm-2 required">订单数量</label>\n' +
                     '           <div class="col-sm-10">\n' +
                     '               <input type="number" class="form-control" id="quantity" name="quantity" value="1" required>\n' +
                     '            </div>\n' +
