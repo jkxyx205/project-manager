@@ -3,6 +3,7 @@ package com.rick.manager.module.product.service;
 import com.rick.formflow.form.cpn.core.Form;
 import com.rick.formflow.form.service.FormAdvice;
 import com.rick.formflow.form.service.bo.FormBO;
+import com.rick.manager.common.SSLSocketClient;
 import com.rick.meta.dict.entity.Dict;
 import com.rick.meta.dict.service.DictService;
 import lombok.RequiredArgsConstructor;
@@ -64,9 +65,8 @@ public class ProductFormAdvice implements FormAdvice {
     }
 
     private String getRateFromBaidu() {
-        OkHttpClient client;
-        client = new OkHttpClient().newBuilder()
-                .build();
+        OkHttpClient client = SSLSocketClient.getUnsafeOkHttpClient();
+
         Request request = new Request.Builder()
                 .url("https://www.soltarot.com/huilv/USD_CNY/1.html")
                 .build();
@@ -78,6 +78,7 @@ public class ProductFormAdvice implements FormAdvice {
             String text = element.text();
             return text.substring(0, 4);
         } catch (IOException e) {
+            e.printStackTrace();
             return "";
         }
     }
