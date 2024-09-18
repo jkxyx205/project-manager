@@ -34,7 +34,7 @@ public class CustomerFormAdvice implements FormAdvice {
     @Override
     public boolean insertOrUpdate(Map<String, Object> values) {
         if (Objects.isNull(values.get("id"))) {
-            values.put("code", codeSequenceService.getCodeSequence("CUSTOMER", null));
+            values.put("code", codeSequenceService.getCodeSequence("CUSTOMER", "C"));
         } else {
             values.put("code", "-1");
         }
