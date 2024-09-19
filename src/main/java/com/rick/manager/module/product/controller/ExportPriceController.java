@@ -1,6 +1,7 @@
 package com.rick.manager.module.product.controller;
 
 import com.rick.common.http.HttpServletResponseUtils;
+import com.rick.common.http.exception.BizException;
 import com.rick.common.util.BigDecimalUtils;
 import com.rick.common.util.Time2StringUtils;
 import com.rick.excel.core.ExcelWriter;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,17 +57,17 @@ public class ExportPriceController {
     private final FormService formService;
 
     @GetMapping("export-price")
-    public void export(HttpServletRequest request, HttpServletResponse response, ExportParamDTO exportParam) throws IOException {
-//        if (exportParam.getPriceType() == ExportParamDTO.PriceTypeEnum.USD && Objects.isNull(exportParam.getRate())) {
-//            throw new BizException("美金未税必须输入汇率");
-//        }
-
+    public void export(HttpServletRequest request, HttpServletResponse response, @Valid ExportParamDTO exportParam) throws IOException {
         exportToExcel(request, response, exportParam);
     }
 
     public void exportToExcel(HttpServletRequest request, HttpServletResponse response, ExportParamDTO exportParam) throws IOException {
         Customer customer = customerService.findById(exportParam.getCustomerId()).get();
         Product product = productService.findById(exportParam.getProductId()).get();
+        if (product.getRmbPrice() == null && product.getUsdPrice() == null) {
+            throw new BizException("请先维护进价，再执行导出操作");
+        }
+
         FormBO formBO = formService.getFormBOByIdAndInstanceId(864287608526680064L, product.getAttrInstanceId());
 
         OutputStream os = HttpServletResponseUtils.getOutputStreamAsAttachment(request, response, "COMPASS-Quotation-"+product.getCode()+" "+product.getName()+"-"+ Time2StringUtils.format(LocalDate.now()) +"" + ".xlsx");
@@ -282,8 +284,16 @@ public class ExportPriceController {
         BigDecimal multiply = new BigDecimal(exportParam.getStep()).multiply(tax);
 
         if (product.getPriceType() == ExportParamDTO.PriceTypeEnum.RMB && exportParam.getPriceType() == ExportParamDTO.PriceTypeEnum.USD) {
+            if (exportParam.getRate() == null) {
+                throw new BizException("请输入汇率");
+            }
+
             multiply = multiply.multiply(exportParam.getRate());
         } else if (product.getPriceType() == ExportParamDTO.PriceTypeEnum.USD && exportParam.getPriceType() == ExportParamDTO.PriceTypeEnum.RMB) {
+            if (exportParam.getRate() == null) {
+                throw new BizException("请输入汇率");
+            }
+
             actualProductPrice = actualProductPrice.multiply(exportParam.getRate());
         } else {
             exportParam.setRate(null);

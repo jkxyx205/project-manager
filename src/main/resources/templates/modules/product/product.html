@@ -145,7 +145,7 @@
                         <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
                     </div>
                     <div class="form-group col-12" style="margin-bottom: 0;">
-                        <label class="col-form-label">参数</label>
+                        <label class="col-form-label">参&nbsp;&nbsp;&nbsp;&nbsp;数</label>
                         <div th:id="${formBO.data['attrFormId']}" class="param-container">
                             <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="tpl/form/form-tag" hide-form-tag></sp:form>
                         </div>
@@ -200,18 +200,19 @@
             <div class="card-header">其他信息</div>
             <div class="card-body">
                 <form class="form-inline row" id="else-form" name="else-form">
-                    <div class="col-12">
-                        <div class="form-group">
-                            <label class="col-form-label" for="certificate">认证</label>
-                            <input class="form-control" type="text" id="certificate" name="certificate" th:value="${formBO.data.certificate}">
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="form-group">
-                            <label class="col-form-label" for="moq">MOQ</label>
-                            <input class="form-control" type="text" id="moq" name="moq" th:value="${formBO.data.moq}">
-                        </div>
-                    </div>
+<!--                    <div class="col-12 col-sm-4">-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label" for="certificate">认证</label>-->
+<!--                            <input class="form-control" type="text" id="certificate" name="certificate" th:value="${formBO.data.certificate}">-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-12 col-sm-4">-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label" for="moq">MOQ</label>-->
+<!--                            <input class="form-control" type="text" id="moq" name="moq" th:value="${formBO.data.moq}">-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-sm-4"></div>-->
                     <div class="col-12 col-sm-4">
                         <table class="table editable-table accessoryList table-bordered table-responsive-sm table-sm" id="sellingPoint" name="sellingPoint">
                             <thead>
@@ -233,6 +234,14 @@
                         </table>
                     </div>
                     <div class="col-12 col-sm-4">
+                        <div class="form-group">
+                            <label class="col-form-label" for="certificate">认证</label>
+                            <input class="form-control" type="text" id="certificate" name="certificate" th:value="${formBO.data.certificate}">
+                        </div>
+                        <div class="form-group">
+                            <label class="col-form-label" for="moq">MOQ</label>
+                            <input class="form-control" type="text" id="moq" name="moq" th:value="${formBO.data.moq}">
+                        </div>
                         <table class="table editable-table accessoryList table-bordered table-responsive-sm table-sm" id="leadTime" name="leadTime">
                             <thead>
                             <tr style="text-align: left;">

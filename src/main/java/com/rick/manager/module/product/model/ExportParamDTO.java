@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,18 +24,23 @@ import java.util.Map;
 @Builder
 public class ExportParamDTO {
 
+    @NotNull
     Long customerId;
 
+    @NotNull
     Long productId;
 
+    @NotNull
     PriceTypeEnum priceType;
 
     String incoterm;
 
     BigDecimal rate;
 
+    @NotBlank
     String step;
 
+    @NotNull
     Integer quantity;
 
     @AllArgsConstructor
