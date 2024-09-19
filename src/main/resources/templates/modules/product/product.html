@@ -111,10 +111,10 @@
             <div class="card-header">基本信息</div>
             <div class="card-body">
                 <form class="form-inline row" id="t_product" name="t_product" onsubmit="return false">
-                    <input type="hidden" id="id" th:value="${formBO.instanceId}">
+                    <input type="hidden" id="id" th:value="${query['copy'] ne null && query['copy'] == 'true' ? '' : formBO.instanceId}">
                     <div class="form-group col-4">
                         <label class="col-form-label required" for="code">编号</label>
-                        <input class="form-control" type="text" id="code" name="code" th:value="${formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${formBO.data.code}" required>
+                        <input class="form-control" type="text" id="code" name="code" th:value="${query['copy'] ne null && query['copy'] == 'true' ? '' : formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${query['copy'] ne null && query['copy'] == 'true' ? false : formBO.data.code}" required>
                     </div>
                     <div class="form-group col-8">
                         <label class="col-form-label required" for="name">品&nbsp;&nbsp;&nbsp;&nbsp;名</label>
@@ -147,7 +147,7 @@
                     <div class="form-group col-12" style="margin-bottom: 0;">
                         <label class="col-form-label">参&nbsp;&nbsp;&nbsp;&nbsp;数</label>
                         <div th:id="${formBO.data['attrFormId']}" class="param-container">
-                            <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="tpl/form/form-tag" hide-form-tag></sp:form>
+                            <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${query['copy'] ne null && query['copy'] == 'true' ? null : formBO.data['attrInstanceId']}" form-page="tpl/form/form-tag" hide-form-tag></sp:form>
                         </div>
                     </div>
                     <div class="form-group col-12 col-sm-6">
@@ -338,12 +338,14 @@
         let formCode = /*[[${formBO.form.code}]]*/
         let codeDOM = document.getElementById("code")
         let p = [[${formBO.propertyList}]]
+        let isCopy =  /*[[${ query['copy'] ne null && query['copy'] == 'true' }]]*/
+
 
         hasAuthority = true
         let readonly = !hasAuthority || [[${query.readonly}]]
 
         let formDOM = window[formCode + 'FormDOM'] = document.forms[0]
-        sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p, readonly, actionUrl: formBO.actionUrl, method: formBO.method}, null,
+        sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p, readonly, actionUrl: isCopy ? (/*[[${formBO.form.id}]]*/) : formBO.actionUrl, method: isCopy ? 'POST' : formBO.method}, null,
             () => {
             // 其他验证 + error 样式
             let valid = formDOM.validElse($('#supplier').multipleSelect('getSelects').length > 0 && $('#supplier').multipleSelect('getSelects')[0] != '', document.getElementById('supplier').nextSibling)
