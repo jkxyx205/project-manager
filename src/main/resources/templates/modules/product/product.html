@@ -147,7 +147,7 @@
                     <div class="form-group col-12" style="margin-bottom: 0;">
                         <label class="col-form-label">参&nbsp;&nbsp;&nbsp;&nbsp;数</label>
                         <div th:id="${formBO.data['attrFormId']}" class="param-container">
-                            <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${query['copy'] ne null && query['copy'] == 'true' ? null : formBO.data['attrInstanceId']}" form-page="tpl/form/form-tag" hide-form-tag></sp:form>
+                            <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="modules/product/form-tag" hide-form-tag th:attr="isCopy=${query['copy'] ne null && query['copy'] == 'true' ? true : false}"></sp:form>
                         </div>
                     </div>
                     <div class="form-group col-12 col-sm-6">

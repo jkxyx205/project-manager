@@ -3,6 +3,7 @@ package com.rick.manager.module.product.service;
 import com.rick.common.util.JsonUtils;
 import com.rick.formflow.form.cpn.core.Form;
 import com.rick.formflow.form.service.FormAdvice;
+import com.rick.formflow.form.service.FormConstants;
 import com.rick.formflow.form.service.bo.FormBO;
 import com.rick.manager.common.SSLSocketClient;
 import com.rick.meta.dict.entity.Dict;
@@ -51,6 +52,9 @@ public class ProductFormAdvice implements FormAdvice {
         valueMap.put("customerDictList", customerDictList);
 
         valueMap.put("rate", getRateFromBaidu());
+
+        //        form.getAdditionalInfo().put(FormConstants.ADDITIONAL_JS, "if (url2Object(location.search).copy === 'true') {$('#id, #code').val('');$('#code').attr('disabled', false);}");
+        form.getAdditionalInfo().put(FormConstants.ADDITIONAL_JS, "if (url2Object(location.search).copy === 'true') {$('.sharp-form #id').val('');}");
     }
 
     @Override
