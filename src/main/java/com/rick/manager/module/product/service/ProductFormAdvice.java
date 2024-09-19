@@ -1,5 +1,6 @@
 package com.rick.manager.module.product.service;
 
+import com.rick.common.util.JsonUtils;
 import com.rick.formflow.form.cpn.core.Form;
 import com.rick.formflow.form.service.FormAdvice;
 import com.rick.formflow.form.service.bo.FormBO;
@@ -11,12 +12,11 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -65,18 +65,27 @@ public class ProductFormAdvice implements FormAdvice {
     }
 
     private String getRateFromBaidu() {
+//        String url = "https://iftp.chinamoney.com.cn/chinese/bkccpr/";
+        String url = "https://iftp.chinamoney.com.cn/r/cms/www/chinamoney/data/fx/ccpr.json";
+//        String className = ".txt-main";
+
         OkHttpClient client = SSLSocketClient.getUnsafeOkHttpClient();
 
         Request request = new Request.Builder()
-                .url("https://www.soltarot.com/huilv/USD_CNY/1.html")
+                .url(url)
                 .build();
         try {
             Response response = client.newCall(request).execute();
-            Document document = Jsoup.parse(response.body().string());
-            Element element = document.selectFirst(".t");
-            // <p class="t">7.092<span class="faded-digits"></span> 人民币（CNY）</p>
-            String text = element.text();
-            return text.substring(0, 4);
+
+//            Document document = Jsoup.parse(response.body().string());
+//            Element element = document.selectFirst(className);
+            // <div class="txt-main">7.0870</div>
+//            String text = element.text();
+
+            Map<String, ?> data = JsonUtils.toObject(response.body().string(), Map.class);
+            Map<String, String> recordMap = (Map<String, String>) ((List) data.get("records")).get(0);
+
+            return new BigDecimal(recordMap.get("price")).setScale(2, RoundingMode.HALF_UP).toPlainString();
         } catch (IOException e) {
             e.printStackTrace();
             return "";
