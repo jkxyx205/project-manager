@@ -294,10 +294,10 @@
             </div></div>
             <div class="card-body">
                 <div class="picture-container">
-                    <input type="hidden" th:value="${formBO.data.pictures ne null ? T(com.rick.common.util.JsonUtils).toJson(formBO.data.pictures) : '[]'}">
+                    <input type="hidden" th:value="${formBO.data.pictures ne null && !(query['copy'] ne null && query['copy'] == 'true') ? T(com.rick.common.util.JsonUtils).toJson(formBO.data.pictures) : '[]'}">
                     <input style="display: none;" type="file" multiple name="pictures_file" id="pictures_file" accept="image/*" data-group-name="pictures" onchange="t_product_pictures_file.ajaxFileUpload()">
                     <div class="attachment-items row">
-                        <th:block th:if="${formBO.data.pictures ne null}">
+                        <th:block th:if="${formBO.data.pictures ne null && !(query['copy'] ne null && query['copy'] == 'true')}">
                             <div class="item col-12 col-md-2" style="position: relative" th:each="f : ${formBO.data.pictures}">
                                 <a class="picture" style="display: block; padding: 4px; border: 1px solid #e3e3c7" data-fancybox="picture" th:attr="data-src=${f.url}, data-caption=${f.fullName}">
                                     <img th:src="${f.url + '?x-oss-process=image/resize,w_200'}" th:alt="${f.fullName}" style="width: 100%;">
