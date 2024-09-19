@@ -71,7 +71,7 @@ public class ProductReportAdvice extends OperatorReportAdvice {
                 "$(function() {Fancybox.bind('a.picture', {})})");
 
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_JS_OPERATOR_COLUMN,
-                "<a class=\"dialogBtn mr-2\" href=\"javascript:;\" onclick=\"gotoDetail('复制', $(this).parent().next().val(), '复制', {copy: true})\">复制</a>");
+                "<a class=\"dialogBtn mr-2\" href=\"javascript:;\" onclick=\"gotoDetail('产品', $(this).parent().next().val(), '产品', {copy: true})\">复制</a>");
 //                "<a class=\"dialogBtn mr-2\" href=\"javascript:;\" onclick=\"gotoDetail('复制', '', '复制', {instanceId: $(this).parent().next().val()})\">复制</a>");
     }
 }
