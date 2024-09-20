@@ -113,7 +113,7 @@
                 <form class="form-inline row" id="t_product" name="t_product" onsubmit="return false">
                     <input type="hidden" id="id" th:value="${formBO.instanceId}">
                     <div class="form-group col-4">
-                        <label class="col-form-label required" for="code">编号</label>
+                        <label class="col-form-label required" for="code">型&nbsp;&nbsp;&nbsp;&nbsp;号</label>
                         <input class="form-control" type="text" id="code" name="code" th:value="${formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${formBO.data.code}" required>
                     </div>
                     <div class="form-group col-8">
@@ -121,7 +121,7 @@
                         <input class="form-control" type="text" id="name" name="name" th:value="${formBO.data.name}" required>
                     </div>
                     <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label required" for="category">分类</label>
+                        <label class="col-form-label required" for="category">分&nbsp;&nbsp;&nbsp;&nbsp;类</label>
                         <sp:select class="form-control" id="category" name="category" key="PRODUCT_TYPE" th:value="${formBO.data.category ne null ? formBO.data.category : ''}" required />
                     </div>
                     <div class="form-group col-8 col-sm-4">
@@ -129,7 +129,7 @@
                         <sp:select class="form-control" id="supplier" name="supplier" key="sys_dict_supplier" th:value="${formBO.data.supplier ne null ? formBO.data.supplier : ''}" required />
                     </div>
                     <div class="form-group col-4 col-sm-4">
-                        <label class="col-form-label required" for="supplierCode">型&nbsp;&nbsp;&nbsp;&nbsp;号</label>
+                        <label class="col-form-label required" for="supplierCode">S 型号</label>
                         <input class="form-control" type="text" id="supplierCode" supplierCode="name" th:value="${formBO.data.supplierCode}" required>
                     </div>
                     <div class="form-group col-4">
@@ -151,11 +151,11 @@
                         </div>
                     </div>
                     <div class="form-group col-12 col-sm-6">
-                        <label class="col-form-label" for="usdPriceTemplate">$模版</label>
+                        <label class="col-form-label" for="usdPriceTemplate">$ 模版</label>
                         <sp:file form-name="t_product" name="usdPriceTemplate" group="template" sp:value="${formBO.data.usdPriceTemplate}" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></sp:file>
                     </div>
                     <div class="form-group col-12 col-sm-6">
-                        <label class="col-form-label" for="rmbPriceTemplate">¥模版</label>
+                        <label class="col-form-label" for="rmbPriceTemplate">¥ 模版</label>
                         <sp:file form-name="t_product" name="rmbPriceTemplate" group="template" sp:value="${formBO.data.rmbPriceTemplate}" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"></sp:file>
                     </div>
                     <div class="form-group col-12">
@@ -163,7 +163,7 @@
                         <textarea class="form-control" id="description" name="description" th:text="${formBO.data.description}"></textarea>
                     </div>
                     <div class="form-group col-12">
-                        <label class="col-form-label">配件</label>
+                        <label class="col-form-label">配&nbsp;&nbsp;&nbsp;&nbsp;件</label>
                         <table class="table editable-table accessoryList table-bordered table-responsive-sm table-sm" id="accessoryList" name="accessoryList">
                             <thead>
                             <tr style="text-align: left;">

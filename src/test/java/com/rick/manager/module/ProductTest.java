@@ -115,7 +115,7 @@ public class ProductTest {
         CpnConfigurer supplierCodeCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
                 .name("supplierCode")
-                .label("型号")
+                .label("供应商型号")
                 .placeholder("请输入供应商产品型号")
                 .validatorList(textValidatorList)
                 .build();
