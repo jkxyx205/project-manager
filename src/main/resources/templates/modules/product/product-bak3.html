@@ -111,10 +111,10 @@
             <div class="card-header">基本信息</div>
             <div class="card-body">
                 <form class="form-inline row" id="t_product" name="t_product" onsubmit="return false">
-                    <input type="hidden" id="id" th:value="${formBO.instanceId}">
+                    <input type="hidden" id="id" th:value="${query['copy'] ne null && query['copy'] == 'true' ? '' : formBO.instanceId}">
                     <div class="form-group col-4">
                         <label class="col-form-label required" for="code">编号</label>
-                        <input class="form-control" type="text" id="code" name="code" th:value="${formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${formBO.data.code}" required>
+                        <input class="form-control" type="text" id="code" name="code" th:value="${query['copy'] ne null && query['copy'] == 'true' ? '' : formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${query['copy'] ne null && query['copy'] == 'true' ? false : formBO.data.code}" required>
                     </div>
                     <div class="form-group col-8">
                         <label class="col-form-label required" for="name">品&nbsp;&nbsp;&nbsp;&nbsp;名</label>
@@ -147,7 +147,7 @@
                     <div class="form-group col-12" style="margin-bottom: 0;">
                         <label class="col-form-label">参&nbsp;&nbsp;&nbsp;&nbsp;数</label>
                         <div th:id="${formBO.data['attrFormId']}" class="param-container">
-                            <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="modules/product/form-tag" hide-form-tag th:attr="copy=${query['copy'] ne null && query['copy'] == 'true' ? true : false}"></sp:form>
+                            <sp:form th:id="${formBO.data['attrFormId'] == null ? '864287608526680064' : formBO.data['attrFormId']}" th:value="${formBO.data['attrInstanceId']}" form-page="modules/product/form-tag" hide-form-tag th:attr="isCopy=${query['copy'] ne null && query['copy'] == 'true' ? true : false}"></sp:form>
                         </div>
                     </div>
                     <div class="form-group col-12 col-sm-6">
@@ -200,36 +200,36 @@
             <div class="card-header">其他信息</div>
             <div class="card-body">
                 <form class="form-inline row" id="else-form" name="else-form">
-                    <!--                    <div class="col-12 col-sm-4">-->
-                    <!--                        <div class="form-group">-->
-                    <!--                            <label class="col-form-label" for="certificate">认证</label>-->
-                    <!--                            <input class="form-control" type="text" id="certificate" name="certificate" th:value="${formBO.data.certificate}">-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
-                    <!--                    <div class="col-12 col-sm-4">-->
-                    <!--                        <div class="form-group">-->
-                    <!--                            <label class="col-form-label" for="moq">MOQ</label>-->
-                    <!--                            <input class="form-control" type="text" id="moq" name="moq" th:value="${formBO.data.moq}">-->
-                    <!--                        </div>-->
-                    <!--                    </div>-->
-                    <!--                    <div class="col-sm-4"></div>-->
+<!--                    <div class="col-12 col-sm-4">-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label" for="certificate">认证</label>-->
+<!--                            <input class="form-control" type="text" id="certificate" name="certificate" th:value="${formBO.data.certificate}">-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-12 col-sm-4">-->
+<!--                        <div class="form-group">-->
+<!--                            <label class="col-form-label" for="moq">MOQ</label>-->
+<!--                            <input class="form-control" type="text" id="moq" name="moq" th:value="${formBO.data.moq}">-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                    <div class="col-sm-4"></div>-->
                     <div class="col-12 col-sm-4">
                         <table class="table editable-table accessoryList table-bordered table-responsive-sm table-sm" id="sellingPoint" name="sellingPoint">
                             <thead>
-                            <tr style="text-align: left;">
-                                <th>
-                                    <label class="col-form-label" style="display: block">产品卖点</label>
-                                </th>
-                                <th class="operator-label"></th>
-                            </tr>
+                                <tr style="text-align: left;">
+                                    <th>
+                                        <label class="col-form-label" style="display: block">产品卖点</label>
+                                    </th>
+                                    <th class="operator-label"></th>
+                                </tr>
                             </thead>
                             <tbody>
-                            <tr th:each="row : ${formBO.data.sellingPoint}">
-                                <td th:each="col: ${row}">
-                                    <input type="text" class="form-control" th:value="${col}">
-                                </td>
-                                <td class="operator btn-link">X</td>
-                            </tr>
+                                <tr th:each="row : ${formBO.data.sellingPoint}">
+                                    <td th:each="col: ${row}">
+                                        <input type="text" class="form-control" th:value="${col}">
+                                    </td>
+                                    <td class="operator btn-link">X</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -290,14 +290,14 @@
         <div class="card">
             <div class="card-header">产品图片
                 <div class="ml-3" style="display: inline-block;" id="btn-file">
-                    <label class="btn btn-primary btn-sm btn-upload" style="margin: 2px" for="pictures_file"><i class="fa fa-upload"></i> 上传</label>
-                </div></div>
+                <label class="btn btn-primary btn-sm btn-upload" style="margin: 2px" for="pictures_file"><i class="fa fa-upload"></i> 上传</label>
+            </div></div>
             <div class="card-body">
                 <div class="picture-container">
-                    <input type="hidden" th:value="${formBO.data.pictures ne null ? T(com.rick.common.util.JsonUtils).toJson(formBO.data.pictures) : '[]'}">
+                    <input type="hidden" th:value="${formBO.data.pictures ne null && !(query['copy'] ne null && query['copy'] == 'true') ? T(com.rick.common.util.JsonUtils).toJson(formBO.data.pictures) : '[]'}">
                     <input style="display: none;" type="file" multiple name="pictures_file" id="pictures_file" accept="image/*" data-group-name="pictures" onchange="t_product_pictures_file.ajaxFileUpload()">
                     <div class="attachment-items row">
-                        <th:block th:if="${formBO.data.pictures ne null}">
+                        <th:block th:if="${formBO.data.pictures ne null && !(query['copy'] ne null && query['copy'] == 'true')}">
                             <div class="item col-12 col-md-2" style="position: relative" th:each="f : ${formBO.data.pictures}">
                                 <a class="picture" style="display: block; padding: 4px; border: 1px solid #e3e3c7" data-fancybox="picture" th:attr="data-src=${f.url}, data-caption=${f.fullName}">
                                     <img th:src="${f.url + '?x-oss-process=image/resize,w_200'}" th:alt="${f.fullName}" style="width: 100%;">
@@ -334,21 +334,23 @@
     <script th:src="@{/js/jquery.dialog.js}"></script>
     <script th:inline="javascript">
         let formBO = /*[[${ formBO }]]*/
-            let originalFormData = /*[[${ formBO.data }]]*/
-            let formCode = /*[[${formBO.form.code}]]*/
-            let codeDOM = document.getElementById("code")
+        let originalFormData = /*[[${ formBO.data }]]*/
+        let formCode = /*[[${formBO.form.code}]]*/
+        let codeDOM = document.getElementById("code")
         let p = [[${formBO.propertyList}]]
+        let isCopy =  /*[[${ query['copy'] ne null && query['copy'] == 'true' }]]*/
+
 
         hasAuthority = true
         let readonly = !hasAuthority || [[${query.readonly}]]
 
         let formDOM = window[formCode + 'FormDOM'] = document.forms[0]
-        sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p, readonly, actionUrl: formBO.actionUrl, method: formBO.method}, null,
+        sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p, readonly, actionUrl: isCopy ? (/*[[${formBO.form.id}]]*/) : formBO.actionUrl, method: isCopy ? 'POST' : formBO.method}, null,
             () => {
-                // 其他验证 + error 样式
-                let valid = formDOM.validElse($('#supplier').multipleSelect('getSelects').length > 0 && $('#supplier').multipleSelect('getSelects')[0] != '', document.getElementById('supplier').nextSibling)
-                return valid
-            });
+            // 其他验证 + error 样式
+            let valid = formDOM.validElse($('#supplier').multipleSelect('getSelects').length > 0 && $('#supplier').multipleSelect('getSelects')[0] != '', document.getElementById('supplier').nextSibling)
+            return valid
+        });
 
         // 初始化 table
         let accessoryFileDOM = document.getElementById("accessory_file")
@@ -420,8 +422,8 @@
 
         function exportPrice() {
             let rate = /*[[${ formBO.data.rate }]]*/
-                let customerDictList = /*[[${ formBO.data.customerDictList }]]*/
-                let options = []
+            let customerDictList = /*[[${ formBO.data.customerDictList }]]*/
+            let options = []
             options.push("<option value=''>&nbsp;</option>")
             for (let dict of customerDictList) {
                 options.push("<option value=\""+dict.name+"\">"+dict.label+"</option>")

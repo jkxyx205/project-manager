@@ -5,21 +5,19 @@ import com.rick.db.service.support.Params;
 import com.rick.formflow.form.cpn.core.CpnConfigurer;
 import com.rick.formflow.form.cpn.core.CpnTypeEnum;
 import com.rick.formflow.form.cpn.core.Form;
-import com.rick.formflow.form.service.CpnConfigurerService;
 import com.rick.formflow.form.service.FormConstants;
-import com.rick.formflow.form.service.FormCpnService;
 import com.rick.formflow.form.service.FormService;
 import com.rick.formflow.form.valid.CustomizeRegex;
 import com.rick.formflow.form.valid.Length;
 import com.rick.formflow.form.valid.Required;
 import com.rick.formflow.form.valid.core.Validator;
+import com.rick.manager.core.FormSupport;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Rick.Xu
@@ -29,25 +27,20 @@ import java.util.stream.Collectors;
 public class WashTest {
 
     @Autowired
-    private FormCpnService formCpnService;
-
-    @Autowired
-    private CpnConfigurerService cpnConfigurerService;
-
-    @Autowired
     private FormService formService;
+
+    @Autowired
+    private FormSupport formSupport;
 
     @Test
     public void testForm() {
-        // 设计控件
-        List<CpnConfigurer> cpnConfigurerList = createCpnConfigurerList();
-        cpnConfigurerService.saveOrUpdate(cpnConfigurerList);
         // 创建表
         Form form = formService.saveOrUpdate(Form.builder()
                 .id(864287608526680064L)
                 .code("wash")
                 .tableName("wash")
                 .tplName("tpl/form/form") // 弹出框显示需要使用 tpl/form/form-full
+                .formAdviceName("washFormAdvice")
                 .additionalInfo(Params.builder(1)
                         .pv(FormConstants.ADDITIONAL_SHOW_SAVE_FORM_BTN, false)
                         .pv(FormConstants.ADDITIONAL_LABEL_COL, 0) // 不显示标签
@@ -55,8 +48,12 @@ public class WashTest {
                 .name("洗地机参数")
                 .storageStrategy(Form.StorageStrategyEnum.INNER_TABLE)
                 .build());
-        // 关联关系
-        formCpnService.saveOrUpdateByConfigIds(form.getId(), cpnConfigurerList.stream().map(CpnConfigurer::getId).collect(Collectors.toList()));
+
+        // 设计控件
+        List<CpnConfigurer> cpnConfigurerList = createCpnConfigurerList();
+
+        formSupport.bind(form.getId(), cpnConfigurerList);
+
         System.out.println("form id = " + form.getId());
     }
 

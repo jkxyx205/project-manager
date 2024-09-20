@@ -68,6 +68,32 @@ public class ProductFormAdvice implements FormAdvice {
         }
     }
 
+    @Override
+    public FormBO beforeRender(Map<String, ?> parameterMap, FormBO formBO) {
+        if (Objects.equals(parameterMap.get("copy"), "true")) {
+            // 复制 产品
+            formBO.getData().put("id", null);
+            formBO.getData().put("instanceId", null);
+            formBO.getData().put("code", null);
+            formBO.getData().put("pictures", Collections.emptyList());
+            formBO.getData().put("accessoryList", Collections.emptyList());
+
+            for (FormBO.Property property : formBO.getPropertyList()) {
+                if (property.getName().equals("code")) {
+                    property.setValue(null);
+                } else if (property.getName().equals("pictures")) {
+                    property.setValue(Collections.emptyList());
+                } else if (property.getName().equals("accessoryList")) {
+                    property.setValue(Collections.emptyList());
+                }
+            }
+
+            return new FormBO(formBO.getForm(), null, formBO.getPropertyList(), formBO.getData(), formBO.getFormAdvice());
+        }
+
+        return FormAdvice.super.beforeRender(parameterMap, formBO);
+    }
+
     private String getRateFromBaidu() {
 //        String url = "https://iftp.chinamoney.com.cn/chinese/bkccpr/";
         String url = "https://iftp.chinamoney.com.cn/r/cms/www/chinamoney/data/fx/ccpr.json";
