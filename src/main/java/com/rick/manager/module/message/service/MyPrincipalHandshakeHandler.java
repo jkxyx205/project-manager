@@ -36,17 +36,17 @@ public class MyPrincipalHandshakeHandler extends DefaultHandshakeHandler {
         return new Principal() {
             @Override
             public boolean equals(Object another) {
-                return false;
+                return this.equals(another);
             }
 
             @Override
             public String toString() {
-                return null;
+                return userId;
             }
 
             @Override
             public int hashCode() {
-                return 0;
+                return userId.hashCode();
             }
 
             @Override
