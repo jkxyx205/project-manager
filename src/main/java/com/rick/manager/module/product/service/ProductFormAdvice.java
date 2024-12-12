@@ -75,6 +75,7 @@ public class ProductFormAdvice implements FormAdvice {
             formBO.getData().put("id", null);
             formBO.getData().put("instanceId", null);
             formBO.getData().put("code", null);
+            formBO.getData().put("supplierCode", null);
             formBO.getData().put("pictures", Collections.emptyList());
             formBO.getData().put("accessoryList", Collections.emptyList());
 
