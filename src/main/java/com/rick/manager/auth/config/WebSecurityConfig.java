@@ -1,6 +1,5 @@
 package com.rick.manager.auth.config;
 
-import com.rick.manager.auth.authentication.AdminExpiredSessionStrategy;
 import com.rick.manager.auth.validate.image.ValidateFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,10 +67,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()// csrf会拦截POST请求 https://www.jianshu.com/p/2c275c75c77a
                 .sessionManagement().
-                invalidSessionUrl("/login")
-                .maximumSessions(1)
-                .expiredSessionStrategy(new AdminExpiredSessionStrategy())
-                .sessionRegistry(sessionRegistry());
+                invalidSessionUrl("/login");
+//                .maximumSessions(1)
+//                .expiredSessionStrategy(new AdminExpiredSessionStrategy())
+//                .sessionRegistry(sessionRegistry());
 
 
         http.addFilterBefore(validateFilter, UsernamePasswordAuthenticationFilter.class);
