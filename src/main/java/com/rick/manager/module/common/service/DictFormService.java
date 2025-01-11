@@ -1,5 +1,6 @@
 package com.rick.manager.module.common.service;
 
+import com.rick.db.plugin.SQLUtils;
 import com.rick.formflow.form.service.FormAdvice;
 import com.rick.formflow.form.service.FormUtils;
 import com.rick.formflow.form.service.bo.FormBO;
@@ -34,4 +35,22 @@ public class DictFormService implements FormAdvice {
             FormUtils.update(864275104153022464L, null);
         }
     }
+
+
+    @Override
+    public void beforeDeleteInstance(Long instanceId) {
+        // TODO 检查 是否被引用过，引用过的不能删除
+    }
+
+    @Override
+    public void afterDeleteInstance(Long instanceId) {
+        // 强制物理删除
+        SQLUtils.delete("sys_dict", new Object[]{instanceId}, "id = ?");
+
+        dictService.rebuild("PRODUCT_TYPE");
+        dictService.rebuild("sys_dict_category");
+
+        FormUtils.update(864275104153022464L, null);
+    }
+
 }

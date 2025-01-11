@@ -82,7 +82,7 @@ public class ExportPriceController {
             excelWriter = new ExcelWriter(new XSSFWorkbook(new URL(product.getRmbPriceTemplate().get("url")).openStream()));
         } else {
             // throw new BizException("请先上传价格模版文件");
-            String accessory = CollectionUtils.isNotEmpty(product.getAccessoryList()) ? "-accessory-" + product.getAccessoryList().size()  : "";
+            String accessory = CollectionUtils.isNotEmpty(product.getAccessoryList()) ? "-accessory-" + Math.min(product.getAccessoryList().size(), 4)  : "";
 
             final ClassPathResource classPathResource = new ClassPathResource("templates/excel/template"+accessory+"-"+exportParam.getPriceType().name()+".xlsx");
             byte[] bytes = IOUtils.toByteArray(classPathResource.getInputStream());
