@@ -1,0 +1,5 @@
+server_ip="106.15.102.17"
+dir="/usr/local/projects"
+project_name="product-manager"
+port="8082"
+project_path="$dir/$project_name"
