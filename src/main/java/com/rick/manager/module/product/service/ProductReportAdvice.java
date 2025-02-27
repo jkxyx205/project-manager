@@ -52,6 +52,7 @@ public class ProductReportAdvice extends OperatorReportAdvice {
     @Override
     public void init(Report report) {
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_LINK, "<link rel=\"stylesheet\" href=\"/plugins/fancybox/fancybox.css\"");
+        report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_CSS, ".table {visibility: hidden;}");
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_SCRIPT,"<script src=\"/plugins/fancybox/fancybox.min.js\"></script>");
 
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_JS, "$('table tr').find('td:eq(3)').each(function(index){\n" +
@@ -68,7 +69,7 @@ public class ProductReportAdvice extends OperatorReportAdvice {
                 "        }\n" +
                 "        $(this).append(pictureHtml.join(''))" +
                 "})\n" +
-                "$(function() {Fancybox.bind('a.picture', {})})");
+                "$(function() {$('.table').css('visibility', 'visible');Fancybox.bind('a.picture', {})})");
 
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_JS_OPERATOR_COLUMN,
                 "<a class=\"dialogBtn ml-2\" href=\"javascript:;\" onclick=\"gotoDetail('产品', $(this).parent().next().val(), '产品', {copy: true})\">复制</a>");
