@@ -380,6 +380,15 @@
                         t_productFormDOM.save((res) => {
                             codeDOM.setAttribute("disabled", "true")
                             toastr.success("保存成功")
+                            // 新建的跳转到详情，防止用户刷新iframe，空白添加页面
+                            if (/*[[${ formBO.instanceId == null }]]*/) {
+                                // 手动刷新产品列表
+                                reloadTab("t_product")
+                                setTimeout(()=> {
+                                    window.location.href = location.origin + location.pathname + "/" + res.data + "?readonly=false"
+                                }, 500)
+                            }
+
                         }, formData => {
                             // 内嵌表单 参    数 id = 864287608526680064，会覆盖 t_product 隐藏域id
                             // 手动获取form 第一个元素，也就是自身的隐藏域id
