@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
 >
 <head th:replace="includes/base :: common_header(~{::title},~{},~{})">
-    <title>苏州DAO有限公司</title>
+    <title>苏州xxx有限公司</title>
 </head>
 <body class="app flex-row align-items-center">
 <script>
@@ -54,6 +54,7 @@
                     </div>
                 </div>
             </form>
+            <div class="text-right mt-1" style="color: #73818f;"><span th:text="${T(com.rick.manager.common.AppConfigHolder).version}"></span></div>
         </div>
     </div>
 </div>
