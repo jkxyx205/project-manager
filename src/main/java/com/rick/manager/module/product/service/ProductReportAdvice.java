@@ -55,7 +55,7 @@ public class ProductReportAdvice extends OperatorReportAdvice {
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_CSS, ".table {visibility: hidden;}");
         report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_SCRIPT,"<script src=\"/plugins/fancybox/fancybox.min.js\"></script>");
 
-        report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_JS, "$('table tr').not(':last-child').find('td:eq(3)').each(function(index){\n" +
+        report.getAdditionalInfo().put(ReportConstants.ADDITIONAL_JS, "$('table tr').find('td:eq(3)').each(function(index){\n" +
                 "    $(this).html('<a class=\"picture\" data-fancybox=\"picture-'+index+'\" data-src=\"'+$(this).text().trim()+'\"><img height=\"20\" src=\"'+$(this).text().trim()+'?x-oss-process=image/resize,h_20\"/></a>')\n" +
                 "    let pictureUrls = $(this).siblings(\"input[name='pictureUrls']\").val();\n" +
                 "        let pictureHtml = []\n" +
