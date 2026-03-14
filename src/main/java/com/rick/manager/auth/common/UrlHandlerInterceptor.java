@@ -2,7 +2,6 @@ package com.rick.manager.auth.common;
 
 import com.rick.common.http.HttpServletRequestUtils;
 import com.rick.common.http.exception.BizException;
-import com.rick.db.plugin.SQLUtils;
 import com.rick.manager.auth.authentication.AdminUserDetails;
 import com.rick.manager.common.exception.ExceptionCodeEnum;
 import com.rick.manager.sys.user.entity.User;
@@ -19,7 +18,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -124,6 +122,6 @@ public class UrlHandlerInterceptor implements HandlerInterceptor {
         //***这里的clientInfo就是所有信息了，请根据自己的日志框架进行收集***
         log.info(clientInfo.toString());
 
-        SQLUtils.insert("sys_access_info", "content, create_time", new Object[] {clientInfo.toString(), LocalDateTime.now()});
+//        SQLUtils.insert("sys_access_info", "content, create_time", new Object[] {clientInfo.toString(), LocalDateTime.now()});
     }
 }
