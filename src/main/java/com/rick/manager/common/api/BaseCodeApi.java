@@ -1,7 +1,7 @@
 package com.rick.manager.common.api;
 
 import com.rick.db.dto.BaseCodeEntity;
-import com.rick.db.plugin.dao.core.EntityCodeDAOImpl;
+import com.rick.db.plugin.dao.core.EntityCodeDAO;
 import com.rick.db.service.BaseServiceImpl;
 import com.rick.manager.common.exception.ExceptionCodeEnum;
 import com.rick.manager.common.exception.ResourceNotFoundException;
@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.PathVariable;
  * @author Rick.Xu
  * @date 2023/6/14 00:12
  */
-public class BaseCodeApi<T extends BaseCodeEntity> extends BaseApi {
+public class BaseCodeApi<S extends BaseServiceImpl<? extends EntityCodeDAO<T, ID>, T, ID>, T extends BaseCodeEntity<ID>, ID> extends BaseApi<S, T, ID> {
 
-    public BaseCodeApi(BaseServiceImpl baseService) {
+    public BaseCodeApi(S baseService) {
         super(baseService);
     }
 
     @GetMapping("code/{code}")
     public T findByCode(@PathVariable String code) {
-        return (T) getEntityFromOptional(((EntityCodeDAOImpl) entityDAO).selectByCode(code), code);
+        return (T) getEntityFromOptional(((EntityCodeDAO) entityDAO).selectByCode(code), code);
     }
 
     @Override

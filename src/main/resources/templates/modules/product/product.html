@@ -381,6 +381,11 @@
                             codeDOM.setAttribute("disabled", "true")
                             toastr.success("保存成功")
                         }, formData => {
+                            // 内嵌表单 参    数 id = 864287608526680064，会覆盖 t_product 隐藏域id
+                            // 手动获取form 第一个元素，也就是自身的隐藏域id
+                            formData.id = t_productFormDOM.firstElementChild.value
+                            formData.instanceId = formData.id
+
                             formData.attrInstanceId = res.data
                             formData.pictures = t_product_pictures_file.getAttachments();
                             formData.certificate = document.getElementById("certificate").value

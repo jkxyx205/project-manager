@@ -10,7 +10,6 @@ import com.rick.db.plugin.dao.annotation.ManyToOne;
 import com.rick.db.plugin.dao.annotation.Table;
 import com.rick.manager.module.product.model.ExportParamDTO;
 import com.rick.manager.module.supplier.entity.Supplier;
-import com.rick.meta.config.validator.DictValueCheck;
 import com.rick.meta.dict.model.DictType;
 import com.rick.meta.dict.model.DictValue;
 import lombok.*;
@@ -18,7 +17,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -42,7 +40,7 @@ public class Product extends BaseCodeEntity<Long> {
     @Embedded(columnPrefix="category_")
     @JsonDeserialize(using = EntityWithCodePropertyDeserializer.class)
     @DictType(type = "PRODUCT_TYPE")
-    @DictValueCheck(type = "PRODUCT_TYPE")
+//    @DictValueCheck(type = "PRODUCT_TYPE")
     DictValue category;
 
     @ManyToOne(value = "supplier_id", parentTable = "t_supplier", comment = "所属供应商")
@@ -67,7 +65,7 @@ public class Product extends BaseCodeEntity<Long> {
     Long attrInstanceId;
 
     @Column(value = "picture", columnDefinition = "text", comment = "图片")
-    List<HashMap<String, String>> pictures;
+    List<Map<String, String>> pictures;
 
     @Column(value = "usd_price_template", columnDefinition = "text", comment = "USD报价模版")
     Map<String, String> usdPriceTemplate;

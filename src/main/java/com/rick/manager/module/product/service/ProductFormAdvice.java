@@ -51,7 +51,7 @@ public class ProductFormAdvice implements FormAdvice {
         List<Dict> customerDictList = dictService.getDictByType("sys_dict_customer");
         valueMap.put("customerDictList", customerDictList);
 
-        valueMap.put("rate", getRateFromBaidu());
+        valueMap.put("rate", getRate());
 
         //        form.getAdditionalInfo().put(FormConstants.ADDITIONAL_JS, "if (url2Object(location.search).copy === 'true') {$('#id, #code').val('');$('#code').attr('disabled', false);}");
         form.getAdditionalInfo().put(FormConstants.ADDITIONAL_JS, "if (url2Object(location.search).copy === 'true') {$('.sharp-form #id').val('');}");
@@ -93,6 +93,11 @@ public class ProductFormAdvice implements FormAdvice {
         }
 
         return FormAdvice.super.beforeRender(parameterMap, formBO);
+    }
+
+    private String getRate() {
+        // TODO 获取汇率
+        return "1.13";
     }
 
     private String getRateFromBaidu() {

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * @date 2024-09-08 19:05:08
  */
 @Service
-public class SupplierService extends BaseServiceImpl<SupplierDAO, Supplier> {
+public class SupplierService extends BaseServiceImpl<SupplierDAO, Supplier, Long> {
 
     public SupplierService(SupplierDAO supplierDAO) {
         super(supplierDAO);
