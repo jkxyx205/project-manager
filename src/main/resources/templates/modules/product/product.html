@@ -380,12 +380,24 @@
                         t_productFormDOM.save((res) => {
                             codeDOM.setAttribute("disabled", "true")
                             toastr.success("保存成功")
-                            // 新建的跳转到详情，防止用户刷新iframe，空白添加页面
-                            if (/*[[${ formBO.instanceId == null }]]*/) {
+
+                            let href;
+                            if (location.search.includes('copy=true')) {
+                                // 复制新建
+                                let url = new URL(location.href)
+                                url.pathname = url.pathname.replace(/[^/]+$/, res.data)
+                                url.searchParams.delete('copy')
+                                href = url.toString()
+                            } else if (/*[[${ formBO.instanceId == null }]]*/) {
+                                // 新建的跳转到详情，防止用户刷新iframe，空白添加页面
                                 // 手动刷新产品列表
+                                href = location.origin + location.pathname + "/" + res.data + "?readonly=false"
+                            }
+
+                            if (href) {
                                 reloadTab("t_product")
                                 setTimeout(()=> {
-                                    window.location.href = location.origin + location.pathname + "/" + res.data + "?readonly=false"
+                                    window.location.href = href
                                 }, 500)
                             }
 
