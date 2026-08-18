@@ -28,6 +28,19 @@
         textarea.form-control {
             min-height: 110px;
         }
+
+        @media screen and (min-width: 576px) {
+            .form-inline label.col-form-label {
+                /* max-width: 110px; */
+                width: auto;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+        }
+
+        .form-inline .form-group {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 <body class="app">
@@ -75,7 +88,7 @@
                     </div>
 
                     <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="contactPhone">电&nbsp;&nbsp;&nbsp;&nbsp;话</label>
+                        <label class="col-form-label" for="contactPhone">电&nbsp;&nbsp;&nbsp;&nbsp;话/WhatsApp</label>
                         <input class="form-control" type="text" id="contactPhone" name="contactPhone" th:value="${formBO.data.contactPhone}">
                     </div>
 
@@ -124,38 +137,38 @@
                         <sp:select class="form-control" id="level" name="level" key="LEVEL" th:value="${formBO.data.level ne null ? formBO.data.level : ''}"/>
                     </div>
 
-                    <div class="form-group col-12 col-sm-4">
+                    <div class="form-group col-12 col-sm-8">
                         <label class="col-form-label" for="status">现阶段状态</label>
                         <sp:select class="form-control" id="status" name="status" key="STATUS" th:value="${formBO.data.status ne null ? formBO.data.status : ''}"/>
                     </div>
 
                     <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="purchasePlan">采购计划<span th:hidden="${formBO.data.purchasePlan.updateTime == null}" th:text="${#temporals.format(formBO.data.purchasePlan.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新'}"></span></label>
+                        <label class="col-form-label" for="purchasePlan">采购计划<span th:hidden="${formBO.data.purchasePlan.updateTime == null}" th:text="${'（' +#temporals.format(formBO.data.purchasePlan.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新）'}"></span></label>
                         <input class="form-control" type="hidden" name="purchasePlan.category" value="PURCHASE_PLAN">
                         <textarea class="form-control" id="purchasePlan" name="purchasePlan.content" th:text="${formBO.data.purchasePlan.content}">
                         </textarea>
                     </div>
 
                     <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="backgroundInvestigation">背景调查<span th:hidden="${formBO.data.backgroundInvestigation.updateTime == null}" th:text="${#temporals.format(formBO.data.backgroundInvestigation.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新'}"></span></label>
+                        <label class="col-form-label" for="backgroundInvestigation">背景调查<span th:hidden="${formBO.data.backgroundInvestigation.updateTime == null}" th:text="${'（' + #temporals.format(formBO.data.backgroundInvestigation.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新）'}"></span></label>
                         <input class="form-control" type="hidden" name="backgroundInvestigation.category" value="BACKGROUND_INVESTIGATION">
                         <textarea class="form-control" id="backgroundInvestigation" name="backgroundInvestigation.content" th:text="${formBO.data.backgroundInvestigation.content}">
                         </textarea>
                     </div>
 
-                    <div class="form-group col-12">
+                    <div class="form-group col-4">
                         <label class="col-form-label" for="requirement">客户需求</label>
                         <textarea class="form-control" id="requirement" name="requirement" th:text="${formBO.data.requirement}"></textarea>
                     </div>
 
                     <div class="form-group col-12">
-                        <label class="col-form-label" for="remark">备&nbsp;&nbsp;&nbsp;&nbsp;注</label>
-                        <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
+                        <label class="col-form-label" for="details">详细跟进记录</label>
+                        <textarea class="form-control" id="details" name="details" th:text="${formBO.data.details}"></textarea>
                     </div>
 
                     <div class="form-group col-12">
-                        <label class="col-form-label" for="details">详细跟进记录</label>
-                        <textarea class="form-control" id="details" name="details" th:text="${formBO.data.details}"></textarea>
+                        <label class="col-form-label" for="remark">备&nbsp;&nbsp;&nbsp;&nbsp;注</label>
+                        <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
                     </div>
                 </form>
             </div>
