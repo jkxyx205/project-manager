@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sp="">
+<head th:replace="includes/base :: common_header(~{},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/css/tab-common.css}">
+    <link rel="stylesheet" th:href="@{/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css}">
+    <link rel="stylesheet" th:href="@{/plugins/multiple-select/multiple-select.min.css}">
+    <style th:inline="css">
+        .ms-parent {
+            padding: 0;
+        }
+
+        .ms-parent .ms-choice {
+            display: block;
+            border: none;
+            height: 33px;
+            line-height: 33px;
+        }
+
+        .form-inline .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-inline .form-control {
+            width: 100%;
+        }
+
+        textarea.form-control {
+            min-height: 110px;
+        }
+    </style>
+</head>
+<body class="app">
+<th:block th:replace="includes/base :: common_content(~{::div})">
+    <div class="container-fluid" style="padding-bottom: 80px;">
+        <div class="card">
+            <div class="card-header">基本信息</div>
+            <div class="card-body">
+                <form class="form-inline row" id="t_customer" name="t_customer" onsubmit="return false">
+                    <input type="hidden" id="id" th:value="${formBO.instanceId}">
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label required" for="code">编&nbsp;&nbsp;&nbsp;&nbsp;号</label>
+                        <input class="form-control" type="text" id="code" name="code" th:value="${formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${formBO.instanceId}" required>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-8">
+                        <label class="col-form-label required" for="name">客&nbsp;&nbsp;&nbsp;&nbsp;户</label>
+                        <input class="form-control" type="text" id="name" name="name" th:value="${formBO.data.name}" required>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="national">国&nbsp;&nbsp;&nbsp;&nbsp;家</label>
+                        <sp:select class="form-control" id="national" name="national" key="t_country" th:value="${formBO.data.national ne null ? formBO.data.national : ''}" group/>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-8">
+                        <label class="col-form-label" for="address">地&nbsp;&nbsp;&nbsp;&nbsp;址</label>
+                        <input class="form-control" type="text" id="address" name="address" th:value="${formBO.data.address}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="postcode">邮&nbsp;&nbsp;&nbsp;&nbsp;编</label>
+                        <input class="form-control" type="text" id="postcode" name="postcode" th:value="${formBO.data.postcode}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label required" for="contactName">联&nbsp;系&nbsp;人</label>
+                        <input class="form-control" type="text" id="contactName" name="contactName" th:value="${formBO.data.contactName}" required>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="contactTitle">职&nbsp;&nbsp;&nbsp;&nbsp;位</label>
+                        <input class="form-control" type="text" id="contactTitle" name="contactTitle" th:value="${formBO.data.contactTitle}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="contactPhone">电&nbsp;&nbsp;&nbsp;&nbsp;话</label>
+                        <input class="form-control" type="text" id="contactPhone" name="contactPhone" th:value="${formBO.data.contactPhone}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="contactMail">邮&nbsp;&nbsp;&nbsp;&nbsp;箱</label>
+                        <input class="form-control" type="email" id="contactMail" name="contactMail" th:value="${formBO.data.contactMail}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="website">公司网站</label>
+                        <input class="form-control" type="text" id="website" name="website" th:value="${formBO.data.website}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="facebook">Facebook</label>
+                        <input class="form-control" type="text" id="facebook" name="facebook" th:value="${formBO.data.facebook}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="instagram">Instagram</label>
+                        <input class="form-control" type="text" id="instagram" name="instagram" th:value="${formBO.data.instagram}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="youTube">YouTube</label>
+                        <input class="form-control" type="text" id="youTube" name="youTube" th:value="${formBO.data.youTube}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="linkedin">Linkedin</label>
+                        <input class="form-control" type="text" id="linkedin" name="linkedin" th:value="${formBO.data.linkedin}">
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="customerType">客户类型</label>
+                        <sp:select class="form-control" id="customerType" name="customerType" key="CUSTOMER_TYPE" th:value="${formBO.data.customerType ne null ? formBO.data.customerType : ''}"/>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="source">来&nbsp;&nbsp;&nbsp;&nbsp;源</label>
+                        <sp:select class="form-control" id="source" name="source" key="SOURCE" th:value="${formBO.data.source ne null ? formBO.data.source : ''}"/>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="level">级&nbsp;&nbsp;&nbsp;&nbsp;别</label>
+                        <sp:select class="form-control" id="level" name="level" key="LEVEL" th:value="${formBO.data.level ne null ? formBO.data.level : ''}"/>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="status">现阶段状态</label>
+                        <sp:select class="form-control" id="status" name="status" key="STATUS" th:value="${formBO.data.status ne null ? formBO.data.status : ''}"/>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="purchasePlan">采购计划<span th:hidden="${formBO.data.purchasePlan.updateTime == null}" th:text="${#temporals.format(formBO.data.purchasePlan.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新'}"></span></label>
+                        <input class="form-control" type="hidden" name="purchasePlan.category" value="PURCHASE_PLAN">
+                        <textarea class="form-control" id="purchasePlan" name="purchasePlan.content" th:text="${formBO.data.purchasePlan.content}">
+                        </textarea>
+                    </div>
+
+                    <div class="form-group col-12 col-sm-4">
+                        <label class="col-form-label" for="backgroundInvestigation">背景调查<span th:hidden="${formBO.data.backgroundInvestigation.updateTime == null}" th:text="${#temporals.format(formBO.data.backgroundInvestigation.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新'}"></span></label>
+                        <input class="form-control" type="hidden" name="backgroundInvestigation.category" value="BACKGROUND_INVESTIGATION">
+                        <textarea class="form-control" id="backgroundInvestigation" name="backgroundInvestigation.content" th:text="${formBO.data.backgroundInvestigation.content}">
+                        </textarea>
+                    </div>
+
+                    <div class="form-group col-12">
+                        <label class="col-form-label" for="requirement">客户需求</label>
+                        <textarea class="form-control" id="requirement" name="requirement" th:text="${formBO.data.requirement}"></textarea>
+                    </div>
+
+                    <div class="form-group col-12">
+                        <label class="col-form-label" for="remark">备&nbsp;&nbsp;&nbsp;&nbsp;注</label>
+                        <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
+                    </div>
+
+                    <div class="form-group col-12">
+                        <label class="col-form-label" for="details">详细跟进记录</label>
+                        <textarea class="form-control" id="details" name="details" th:text="${formBO.data.details}"></textarea>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<div style="position: fixed; left: 0; bottom: 0; width: 100%; padding: 15px; border-top: 1px solid #c8ced3; background-color: #FFFFFF; text-align: center">
+    <button type="button" class="btn btn-primary btn-save mr-2" th:onclick="t_customerFormDOM.save()"><i class="fa fa-save"></i> 保存</button>
+</div>
+
+<th:block th:replace="includes/base :: common_js(~{::script})">
+    <script type="text/javascript" th:src="@{/plugins/jquery.form2json.js}"></script>
+    <script type="text/javascript" th:src="@{/plugins/multiple-select/multiple-select.min.js}"></script>
+    <script th:src="@{/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js}"></script>
+    <script th:src="@{/plugins/bootstrap-datepicker/js/bootstrap-datepicker.zh-CN.min.js}"></script>
+    <script th:src="@{/js/form-support.js}"></script>
+    <script th:inline="javascript">
+        let formBO = /*[[${ formBO }]]*/
+        let originalFormData = /*[[${ formBO.data }]]*/
+        let formCode = /*[[${formBO.form.code}]]*/
+        let p = [[${formBO.propertyList}]]
+
+        let hasAuthority = true
+        let readonly = !hasAuthority || [[${query.readonly}]]
+
+        let formDOM = window[formCode + 'FormDOM'] = document.forms[0]
+        sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p, readonly, actionUrl: formBO.actionUrl, method: formBO.method}, null, null)
+
+        $('.btn-save').removeAttr("onclick").on('click', function () {
+            if (t_customerFormDOM.valid()) {
+                t_customerFormDOM.save(() => {
+                    toastr.success("保存成功")
+                })
+            }
+        })
+    </script>
+</th:block>
+</body>
+</html>

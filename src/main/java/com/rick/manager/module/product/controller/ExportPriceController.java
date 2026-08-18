@@ -109,8 +109,8 @@ public class ExportPriceController {
             customerInfoStartIndex++;
         }
 
-        if (StringUtils.isNotBlank(customer.getWhatsApp())) {
-            excelWriter.writeCell(new ExcelCell(1, customerInfoStartIndex, "Whats App: " + customer.getWhatsApp()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
+        if (StringUtils.isNotBlank(customer.getContactPhone())) {
+            excelWriter.writeCell(new ExcelCell(1, customerInfoStartIndex, "Whats App: " + customer.getContactPhone()), (ecell, cell) -> cell.getRichStringCellValue().applyFont(0, 9, boldFont));
         }
 
         BigDecimal tax = product.getPriceType() == ExportParamDTO.PriceTypeEnum.RMB ? PriceConstants.rate : BigDecimal.ONE;

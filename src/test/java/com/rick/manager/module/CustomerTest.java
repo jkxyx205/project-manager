@@ -12,6 +12,10 @@ import com.rick.formflow.form.valid.CustomizeRegex;
 import com.rick.formflow.form.valid.Length;
 import com.rick.formflow.form.valid.Required;
 import com.rick.formflow.form.valid.core.Validator;
+import com.rick.manager.module.customer.dao.CustomerDAO;
+import com.rick.manager.module.customer.entity.Customer;
+import com.rick.manager.module.customer.entity.Record;
+import com.rick.meta.dict.model.DictValue;
 import com.rick.report.core.entity.Report;
 import com.rick.report.core.model.HiddenReportColumn;
 import com.rick.report.core.model.QueryField;
@@ -46,6 +50,9 @@ public class CustomerTest {
     @Autowired
     private ReportService reportService;
 
+    @Autowired
+    private CustomerDAO customerDAO;
+
     @Test
     public void testForm() {
         // 设计控件
@@ -57,7 +64,8 @@ public class CustomerTest {
                 .code("t_customer")
                 .tableName("t_customer")
 //                // 1. 弹出框
-                .tplName("tpl/form/form-full") // 弹出框显示需要使用 tpl/form/form-full
+//                .tplName("tpl/form/form-full") // 弹出框显示需要使用 tpl/form/form-full
+                .tplName("modules/customer") // 自定义
                 .additionalInfo(Params.builder(1).pv("showSaveFormBtn", false).build())
                 .name("客户信息")
                 .formAdviceName("customerFormAdvice")
@@ -80,13 +88,13 @@ public class CustomerTest {
         List<Validator> codeRegexValidatorList = Lists.newArrayList(textValidatorList);
         codeRegexValidatorList.add(codeRegex);
 
-//        CpnConfigurer codeCpn = CpnConfigurer.builder()
-//                .cpnType(CpnTypeEnum.TEXT)
-//                .name("code")
-//                .label("编号")
-//                .placeholder("请输入编号")
-//                .validatorList(codeRegexValidatorList)
-//                .build();
+        CpnConfigurer codeCpn = CpnConfigurer.builder()
+                .cpnType(CpnTypeEnum.TEXT)
+                .name("code")
+                .label("编号")
+                .placeholder("请输入编号")
+                .validatorList(codeRegexValidatorList)
+                .build();
 
         CpnConfigurer nameCpn = CpnConfigurer.builder()
                 .cpnType(CpnTypeEnum.TEXT)
@@ -160,7 +168,7 @@ public class CustomerTest {
                 .placeholder("请输入备注")
                 .build();
 
-        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(nameCpn, nationalCpn, addressCpn, contactNameCpn, contactPhoneCpn, contactMailCpn, whatsappCpn, positionCpn, websiteCpn, remarkCpn);
+        List<CpnConfigurer> cpnConfigurerList = Lists.newArrayList(codeCpn, nameCpn, nationalCpn, addressCpn, contactNameCpn, contactPhoneCpn, contactMailCpn, whatsappCpn, positionCpn, websiteCpn, remarkCpn);
         return cpnConfigurerList;
     }
     @Test
@@ -173,9 +181,10 @@ public class CustomerTest {
                 .name("客户")
                 .reportAdviceName("operatorReportAdvice")
                 .additionalInfo(Params.builder(1).pv("operator-bar", true) // 显示操作按钮
+                        .pv(ReportConstants.ADDITIONAL_FORM_ACTION, ReportConstants.ADDITIONAL_LINK)
                         .pv(ReportConstants.ADDITIONAL_FORM_ID, "866354416721108992")
                         .build()) // 显示操作按钮
-                .querySql("SELECT t_customer.name AS \"name\", t_customer.national_code AS \"national\", t_customer.address AS \"address\", t_customer.contact_name AS \"contactName\",t_customer.contact_phone AS \"contactPhone\",t_customer.contact_mail AS \"contactMail\",t_customer.whats_app AS \"whatsApp\",t_customer.remark AS \"remark\",t_customer.code AS \"code\",t_customer.create_by AS \"createBy\",t_customer.create_time AS \"createTime\",t_customer.update_by AS \"updateBy\",t_customer.update_time AS \"updateTime\",t_customer.is_deleted AS \"deleted\",t_customer.id AS \"id\" FROM t_customer WHERE " +
+                .querySql("SELECT t_customer.name AS \"name\", t_customer.national_code AS \"national\", t_customer.address AS \"address\", t_customer.contact_name AS \"contactName\",t_customer.contact_phone AS \"contactPhone\",t_customer.contact_mail AS \"contactMail\",t_customer.remark AS \"remark\",t_customer.code AS \"code\",t_customer.create_by AS \"createBy\",t_customer.create_time AS \"createTime\",t_customer.update_by AS \"updateBy\",t_customer.update_time AS \"updateTime\",t_customer.is_deleted AS \"deleted\",t_customer.id AS \"id\" FROM t_customer WHERE " +
                         "(name LIKE :keyword OR contact_name LIKE :keyword OR contact_phone LIKE :keyword OR contact_mail LIKE :keyword OR whats_app LIKE :keyword OR id = :id) AND is_deleted = 0")
                 .queryFieldList(Arrays.asList(
 //                        new QueryField("code", "编号"),
@@ -196,8 +205,8 @@ public class CustomerTest {
                         new ReportColumn("address", "地址"),
                         new ReportColumn("contactName", "联系人"),
                         new ReportColumn("contactPhone", "电话"),
-                        new ReportColumn("contactMail", "邮箱"),
-                        new ReportColumn("whatsApp", "Whats App")
+                        new ReportColumn("contactMail", "邮箱")
+//                        new ReportColumn("whatsApp", "Whats App")
 //                        new ReportColumn("remark", "备注"),
 //                        new ReportColumn("createBy", "创建人"),
 //                        new ReportColumn("createTime", "创建时间", false, null, Arrays.asList("localDateTimeConverter")).setColumnWidth(120).setAlign(AlignEnum.CENTER).setType(ReportColumn.TypeEnum.DATETIME),
@@ -211,5 +220,46 @@ public class CustomerTest {
 
         reportService.saveOrUpdate(report);
         System.out.println("=========reportId = " + report.getId());
+    }
+
+    @Test
+    public void testInsert() {
+        customerDAO.insertOrUpdate(
+                Customer.builder()
+                        .code("1123")
+                        .name("Test")
+                        .address("China")
+                        .postcode("225433")
+                        .national(new DictValue("57"))
+                        .contactName("联系人")
+                        .contactPhone("18878787762")
+                        .contactTitle("采购经理")
+                        .contactMail("2332@qq.com")
+                        .website("https://www.baidu.com")
+                        .facebook("fb")
+                        .youTube("yt")
+                        .instagram("ins")
+                        .linkedin("lk")
+                        .customerType("WHOLESALE")
+                        .source("FRIEND")
+                        .level("S")
+                        .requirement("客户需求")
+                        .purchasePlan(Record.builder()
+                                .category(Record.CategoryEnum.PURCHASE_PLAN)
+                                .content("采购计划4")
+                                .build())
+                        .backgroundInvestigation(Record.builder()
+                                .category(Record.CategoryEnum.BACKGROUND_INVESTIGATION)
+                                .content("背景记录4")
+                                .build())
+                        .status("1")
+                        .remark("mk")
+                        .build()
+        );
+    }
+
+    @Test
+    public void testSelectByCode() {
+        Customer customer = customerDAO.selectByCode("1123").get();
     }
 }
