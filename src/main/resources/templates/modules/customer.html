@@ -46,10 +46,10 @@
             display: none !important;
         }
 
-        /* 基本信息：label 加粗，label 与字段同行（.is-block 区块仍保持上下排布） */
+        /* label 顶对齐：label 与字段同一行，垂直方向顶部对齐（基本信息 / 跟进记录共用） */
         .form-inline .form-group:not(.is-block) {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
         }
         .form-inline .form-group:not(.is-block) > label.col-form-label {
             font-weight: bold;
@@ -88,7 +88,7 @@
         .followup-row {
             display: flex;
             flex-wrap: wrap;
-            align-items: center;
+            align-items: flex-start;
             gap: 8px 14px;
         }
         .followup-row > .form-group {
@@ -97,6 +97,8 @@
         }
         .followup-row .form-group label {
             margin: 0 4px 0 0;
+            padding-top: 8px;
+            padding-bottom: 8px;
             white-space: nowrap;
             font-size: 13px;
             font-weight: bold;
@@ -106,12 +108,60 @@
             color: #73818f;
             font-size: 13px;
             min-width: 120px;
+            padding-top: 8px;
+            padding-bottom: 8px;
         }
         .followup-item .fu-desc {
             min-height: 60px;
         }
         .followup-item select.form-control {
             width: auto;
+        }
+
+        /* ===== 客户标签自定义选择器 ===== */
+        .tag-picker { width: 100%; }
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            gap: 6px 10px;
+            padding: 4px 0;
+            border-bottom: 1px dashed #eef0f3;
+        }
+        .tag-row:last-child { border-bottom: 0; }
+        .tag-cat {
+            flex: 0 0 auto;
+            min-width: 84px;
+            font-weight: bold;
+            font-size: 13px;
+            color: #5c6873;
+        }
+        .tag-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag-chip {
+            border: 1px solid #c8ced3;
+            background: #fff;
+            color: #5c6873;
+            border-radius: 12px;
+            padding: 2px 10px;
+            font-size: 12px;
+            line-height: 1.4;
+            cursor: pointer;
+            transition: all .15s;
+        }
+        .tag-chip:hover { border-color: #4dbd74; color: #2f353a; }
+        .tag-chip.selected {
+            background: #4dbd74;
+            border-color: #4dbd74;
+            color: #fff;
+        }
+        /* 只读模式：仅显示已选项、隐藏空分类行、禁止交互 */
+        #t_customer.view-mode .tag-picker { pointer-events: none; }
+        #t_customer.view-mode .tag-chip:not(.selected) { display: none; }
+        #t_customer.view-mode .tag-row:not(:has(.tag-chip.selected)) { display: none; }
+        #t_customer.view-mode .tag-chip.selected {
+            background: #e6f4ea;
+            border-color: #c3e6cb;
+            color: #1e7e34;
         }
 
         /* ===== 只读 / 编辑模式切换 ===== */
@@ -147,6 +197,19 @@
         }
         #t_customer.view-mode .ms-parent .ms-choice .arrow { display: none; }
         #t_customer.view-mode .form-group { margin-bottom: 0.35rem; }
+        /* 只读模式：label 去除上下 padding，与 value 顶对齐 */
+        #t_customer.view-mode label.col-form-label {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        #t_customer.view-mode .followup-row .form-group label {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        #t_customer.view-mode .followup-row .followup-derived {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
         /* 只读模式隐藏必填星号 */
         #t_customer.view-mode label.required:before { content: none !important; }
     </style>
@@ -265,7 +328,8 @@
 
                             <div class="form-group col-12 col-sm-12">
                                 <label class="col-form-label" for="tags">客户标签</label>
-                                <sp:select class="form-control" id="tags" name="tags" key="CUSTOMER_TAG" group multiple hideDummyItemText/>
+                                <sp:select class="form-control d-none" id="tags" name="tags" key="CUSTOMER_TAG" group multiple hideDummyItemText/>
+                                <div id="tags-picker" class="tag-picker"></div>
                             </div>
 
                             <div class="form-group col-12 col-sm-4">
@@ -459,16 +523,45 @@
             loadTimezoneByCountry(sel[0])
         })
 
-        // ===== 客户标签（基本信息）多选 =====
-        // 在 multipleSelect 改造 #tags 之前，先快照其 optgroup/option 结构，供跟进行克隆
+        // ===== 客户标签（基本信息）自定义分类选择器 =====
+        // #tags（隐藏 select）作为选项来源：optgroup=分类，option=值；同时供跟进行克隆
         const TAG_OPTIONS_HTML = $('#tags').html()
-        $('#tags').multipleSelect({
-            filter: true, single: false, selectAll: true, placeholder: '请选择客户标签'
+
+        function buildTagPicker($source, $picker, selectedCsv) {
+            const selSet = {}
+            ;(selectedCsv || '').split(',').forEach(function (v) { if (v) selSet[v] = true })
+            $picker.empty()
+            $source.find('optgroup').each(function () {
+                const $grp = $(this)
+                const $row = $('<div class="tag-row"></div>')
+                $row.append($('<span class="tag-cat"></span>').text($grp.attr('label') + '：'))
+                const $chips = $('<span class="tag-chips"></span>')
+                $grp.find('option').each(function () {
+                    const val = $(this).val()
+                    if (!val) return
+                    $('<button type="button" class="tag-chip"></button>')
+                        .attr('data-val', val)
+                        .text($(this).text())
+                        .toggleClass('selected', !!selSet[val])
+                        .appendTo($chips)
+                })
+                $row.append($chips)
+                $picker.append($row)
+            })
+        }
+
+        function getPickerCsv($picker) {
+            return $picker.find('.tag-chip.selected').map(function () {
+                return $(this).attr('data-val')
+            }).get().join(',')
+        }
+
+        buildTagPicker($('#tags'), $('#tags-picker'), originalFormData.tags || '')
+        // 编辑模式下点击 chip 切换选中/反选（只读模式由 CSS pointer-events:none 屏蔽）
+        $('#t_customer').on('click', '.tag-chip', function (e) {
+            e.preventDefault()
+            $(this).toggleClass('selected')
         })
-        ;(function () {
-            const csv = originalFormData.tags || ''
-            if (csv) $('#tags').multipleSelect('setSelects', csv.split(','))
-        })()
 
         // ===== 跟进记录 =====
         // 选项数据：STATUS / COMMUNICATION 走 /dicts 接口；TAG 分组选项直接克隆基本信息 #tags 的 optgroup/option
@@ -491,11 +584,15 @@
             buildSelectOptions($status, STATUS_OPTIONS, statusVal, false)
             $status.val(statusVal || '')
 
-            // 客户标签：分组多选，选项克隆自 #tags 快照
+            // 客户标签：自定义分类 chip 选择器（选项克隆自 #tags 快照）
             const $tags = $item.find('.fu-tags')
-            $tags.html(TAG_OPTIONS_HTML)
-            $tags.multipleSelect({filter: true, single: false, selectAll: true, placeholder: '请选择标签'})
-            if (tagsCsv) $tags.multipleSelect('setSelects', tagsCsv.split(','))
+            $tags.html(TAG_OPTIONS_HTML).addClass('d-none') // 隐藏 select，仅作选项来源
+            let $picker = $item.find('.fu-tags-picker')
+            if (!$picker.length) {
+                $picker = $('<div class="tag-picker fu-tags-picker"></div>')
+                $tags.after($picker)
+            }
+            buildTagPicker($tags, $picker, tagsCsv)
 
             // 沟通方式：多选
             const $comm = $item.find('.fu-communication')
@@ -508,7 +605,7 @@
             const $item = $($('#tpl-followup').html())
             $item.find('.fu-type').val(type)
             $item.addClass(type === 'PLAN' ? 'is-plan' : 'is-record')
-            $('#followup-list').append($item)
+            $('#followup-list').prepend($item)
             initRowSelects($item, '', '', '')
             recomputeAll()
         }
@@ -631,7 +728,7 @@
         function buildFollowUps() {
             return $('#followup-list .followup-item').map(function () {
                 const $f = $(this)
-                const tags = getMultiVal($f.find('.fu-tags')).join(',')
+                const tags = getPickerCsv($f.find('.fu-tags-picker'))
                 const comm = getMultiVal($f.find('.fu-communication')).join(',')
                 return {
                     id: $f.find('.fu-id').val() || null,
@@ -690,7 +787,7 @@
                         setEditMode(false) // 保存成功后回到只读模式
                     }, (formData) => {
                         // 客户标签以 CSV 提交
-                        formData.tags = ($('#tags').multipleSelect('getSelects') || []).join(',')
+                        formData.tags = getPickerCsv($('#tags-picker'))
                         formData.tasks = buildFollowUps()
                     })
                 } else {
