@@ -12,6 +12,7 @@ import com.rick.meta.dict.service.DictService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Objects;
 
@@ -32,8 +33,8 @@ public class CustomerFormAdvice implements FormAdvice {
     @Override
     public FormBO beforeRender(Map<String, ?> parameterMap, FormBO formBO) {
         if (Objects.isNull(formBO.getInstanceId())) {
-            // GET DEFAULT CODE
-            String code = codeSequenceService.getCodeSequence("CUSTOMER", "C");
+            // GET DEFAULT CODE（仅预览，不占用序号；保存时才真正递增）
+            String code = codeSequenceService.peekCodeSequence("CUSTOMER", "C");
 
             formBO.getPropertyData().put("code", code);
             FormBO.Property codeProperty = formBO.getPropertyList().stream().filter(property -> "code".equals(property.getName())).findFirst().get();
@@ -43,6 +44,7 @@ public class CustomerFormAdvice implements FormAdvice {
             ObjectMapper objectMapper = new ObjectMapper();
             customer.setPurchasePlan(Record.builder().build());
             customer.setBackgroundInvestigation(Record.builder().build());
+            customer.setTasks(new ArrayList<>());
 
             Map<String, Object> newCustomer = objectMapper.convertValue(
                     customer,
@@ -50,6 +52,8 @@ public class CustomerFormAdvice implements FormAdvice {
             );
 
             formBO.getData().putAll(newCustomer);
+            // 记录预览编号，供保存时判断用户是否手动修改过
+            formBO.getData().put("previewCode", code);
         }
 
         return formBO;
@@ -64,11 +68,16 @@ public class CustomerFormAdvice implements FormAdvice {
 
     @Override
     public boolean insertOrUpdate(Map<String, Object> values) {
-//        if (Objects.isNull(values.get("id"))) {
-//            values.put("code", codeSequenceService.getCodeSequence("CUSTOMER", "C"));
-//        } else {
-//            values.put("code", "-1");
-//        }
+        if (Objects.isNull(values.get("id"))) {
+            // 新增：若用户未手动修改编号（提交值仍等于预览值），则真正占用序号；
+            // 若手动改过，则使用用户输入的编号，不占用序号
+            Object submittedCode = values.get("code");
+            Object previewCode = values.get("previewCode");
+            if (submittedCode == null || submittedCode.equals(previewCode)) {
+                values.put("code", codeSequenceService.getCodeSequence("CUSTOMER", "C"));
+            }
+        }
+        values.remove("previewCode");
 
         customerDAO.insertOrUpdate(values);
         return true;

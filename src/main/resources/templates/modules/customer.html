@@ -41,6 +41,11 @@
         .form-inline .form-group {
             margin-bottom: 0;
         }
+
+        /* 计划任务/明细输入框同行排布，不受 .form-inline .form-control{width:100%} 影响 */
+        #task-list .form-control {
+            width: auto;
+        }
     </style>
 </head>
 <body class="app">
@@ -51,6 +56,7 @@
             <div class="card-body">
                 <form class="form-inline row" id="t_customer" name="t_customer" onsubmit="return false">
                     <input type="hidden" id="id" th:value="${formBO.instanceId}">
+                    <input type="hidden" id="previewCode" name="previewCode" th:value="${formBO.data['previewCode']}">
 
                     <div class="form-group col-12 col-sm-4">
                         <label class="col-form-label required" for="code">编&nbsp;&nbsp;&nbsp;&nbsp;号</label>
@@ -162,9 +168,60 @@
                     </div>
 
                     <div class="form-group col-12">
-                        <label class="col-form-label" for="details">详细跟进记录</label>
-                        <textarea class="form-control" id="details" name="details" th:text="${formBO.data.details}"></textarea>
+                        <label class="col-form-label">详细计划任务</label>
+                        <div id="task-list" class="mt-1">
+                            <th:block th:each="fu, iter : ${formBO.data.tasks}">
+                                <div class="task-item card mb-2">
+                                    <input type="hidden" class="fu-id" th:value="${fu.id}">
+                                    <div class="card-body py-2">
+                                        <div class="d-flex align-items-center flex-wrap">
+                                            <label class="mb-0 mr-2"><input type="checkbox" class="fu-completed" th:checked="${fu.completed}"> 完成</label>
+                                            <input type="text" class="form-control fu-desc flex-grow-1 mr-2" style="min-width:400px" placeholder="跟进描述（必填）" th:value="${fu.description}" required>
+                                            <button type="button" class="btn btn-danger btn-sm btn-del-task"><i class="fa fa-trash"></i> 删除跟进</button>
+                                        </div>
+                                        <div class="detail-list mt-2">
+                                            <th:block th:each="d : ${fu.details}">
+                                                <div class="detail-item d-flex align-items-center flex-wrap mb-1">
+                                                    <input type="hidden" class="d-id" th:value="${d.id}">
+                                                    <label class="mb-0 mr-2"><input type="checkbox" class="d-completed" th:checked="${d.completed}"> 完成</label>
+                                                    <input type="text" class="form-control d-date mr-2" style="max-width:140px" placeholder="日期" th:value="${d.occurDate != null ? #temporals.format(d.occurDate, 'yyyy-MM-dd') : ''}">
+                                                    <input type="text" class="form-control d-desc flex-grow-1 mr-2" style="min-width:260px" placeholder="明细描述（必填）" th:value="${d.description}" required>
+                                                    <button type="button" class="btn btn-danger btn-sm btn-del-detail"><i class="fa fa-trash"></i></button>
+                                                </div>
+                                            </th:block>
+                                        </div>
+                                        <button type="button" class="btn btn-info btn-sm btn-add-detail"><i class="fa fa-plus"></i> 添加明细</button>
+                                    </div>
+                                </div>
+                            </th:block>
+                        </div>
+                        <button type="button" class="btn btn-success btn-sm mt-1" id="btn-add-task"><i class="fa fa-plus"></i> 添加计划任务</button>
                     </div>
+
+                    <template id="tpl-task">
+                        <div class="task-item card mb-2">
+                            <input type="hidden" class="fu-id">
+                            <div class="card-body py-2">
+                                <div class="d-flex align-items-center flex-wrap">
+                                    <label class="mb-0 mr-2"><input type="checkbox" class="fu-completed"> 完成</label>
+                                    <input type="text" class="form-control fu-desc flex-grow-1 mr-2" style="min-width:200px" placeholder="跟进描述（必填）" required>
+                                    <button type="button" class="btn btn-danger btn-sm btn-del-task"><i class="fa fa-trash"></i> 删除跟进</button>
+                                </div>
+                                <div class="detail-list mt-2"></div>
+                                <button type="button" class="btn btn-info btn-sm btn-add-detail"><i class="fa fa-plus"></i> 添加明细</button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template id="tpl-detail">
+                        <div class="detail-item d-flex align-items-center flex-wrap mb-1">
+                            <input type="hidden" class="d-id">
+                            <label class="mb-0 mr-2"><input type="checkbox" class="d-completed"> 完成</label>
+                            <input type="text" class="form-control d-date mr-2" style="max-width:140px" placeholder="日期">
+                            <input type="text" class="form-control d-desc flex-grow-1 mr-2" style="min-width:160px" placeholder="明细描述（必填）" required>
+                            <button type="button" class="btn btn-danger btn-sm btn-del-detail"><i class="fa fa-trash"></i></button>
+                        </div>
+                    </template>
 
                     <div class="form-group col-12">
                         <label class="col-form-label" for="remark">备&nbsp;&nbsp;&nbsp;&nbsp;注</label>
@@ -198,10 +255,81 @@
         let formDOM = window[formCode + 'FormDOM'] = document.forms[0]
         sharpFormInit(formDOM, document.getElementById("id"), {originalFormData, formCode, p, readonly, actionUrl: formBO.actionUrl, method: formBO.method}, null, null)
 
+        // 国家下拉改为可筛选单选（沿用 multiple-select 插件，与 SEARCH_SELECT 一致）
+        $('#national').multipleSelect({filter: true, single: true, placeholder: '请选择国家'})
+
+        // ===== 详细计划任务 =====
+        const DATEPICKER_OPTS = {language: "zh-CN", autoclose: true, clearBtn: true, todayBtn: 'linked', todayHighlight: true, format: 'yyyy-mm-dd'}
+
+        function initDatepickers($scope) {
+            $scope.find('.d-date').not('.has-dp').each(function () {
+                $(this).datepicker(DATEPICKER_OPTS).addClass('has-dp')
+            })
+        }
+
+        function addTask() {
+            const $item = $($('#tpl-task').html())
+            $('#task-list').append($item)
+            addDetail($item) // 默认带一条明细
+        }
+
+        function addDetail($taskItem) {
+            const $d = $($('#tpl-detail').html())
+            $taskItem.find('.detail-list').append($d)
+            initDatepickers($d)
+            syncTaskCompleted($taskItem)
+        }
+
+        // 计划任务的「完成」由其下明细自动联动：
+        //  - 所有明细都完成 → 跟进自动完成
+        //  - 新增未完成的明细 → 跟进自动取消完成
+        //  - 手动勾选跟进的「完成」不影响明细（故该函数不在 fu-completed 上触发）
+        function syncTaskCompleted($taskItem) {
+            const $cbs = $taskItem.find('.detail-item .d-completed')
+            const allDone = $cbs.length > 0 && $cbs.filter(':checked').length === $cbs.length
+            $taskItem.find('.fu-completed').prop('checked', allDone)
+        }
+
+        $('#btn-add-task').on('click', function () { addTask() })
+        $('#task-list').on('click', '.btn-add-detail', function () { addDetail($(this).closest('.task-item')) })
+        $('#task-list').on('click', '.btn-del-task', function () { $(this).closest('.task-item').remove() })
+        $('#task-list').on('click', '.btn-del-detail', function () {
+            const $fu = $(this).closest('.task-item')
+            $(this).closest('.detail-item').remove()
+            syncTaskCompleted($fu)
+        })
+        $('#task-list').on('change', '.d-completed', function () {
+            syncTaskCompleted($(this).closest('.task-item'))
+        })
+
+        initDatepickers($('#task-list'))
+
+        function buildTasks() {
+            return $('#task-list .task-item').map(function () {
+                const $f = $(this)
+                return {
+                    id: $f.find('.fu-id').val() || null,
+                    description: $f.find('.fu-desc').val(),
+                    completed: $f.find('.fu-completed').is(':checked'),
+                    details: $f.find('.detail-item').map(function () {
+                        const $d = $(this)
+                        return {
+                            id: $d.find('.d-id').val() || null,
+                            occurDate: $d.find('.d-date').val() || null,
+                            description: $d.find('.d-desc').val(),
+                            completed: $d.find('.d-completed').is(':checked')
+                        }
+                    }).get()
+                }
+            }).get()
+        }
+
         $('.btn-save').removeAttr("onclick").on('click', function () {
             if (t_customerFormDOM.valid()) {
                 t_customerFormDOM.save(() => {
                     toastr.success("保存成功")
+                }, (formData) => {
+                    formData.tasks = buildTasks()
                 })
             }
         })

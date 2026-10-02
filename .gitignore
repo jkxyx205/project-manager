@@ -170,5 +170,7 @@ ehcache
 control-*.html
 application-*.yml
 rebel.xml
+.claude
+.env.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,jetbrains+iml,java,gradle

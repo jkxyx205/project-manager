@@ -39,6 +39,26 @@ public class CodeSequenceService {
     }
 
     /**
+     * 预览下一个编号，但不持久化递增（未保存前不占用序号，下次进入仍可使用）。
+     * 仅用于新增表单渲染时的默认编号展示，真正占用序号应在保存时调用 {@link #getCodeSequence}。
+     */
+    public String peekCodeSequence(String category, String prefix) {
+        return peekCodeSequence(category, prefix, Time2StringUtils.format(Instant.now()).replaceAll("\\s+|-|:", "").substring(0, 8), 2);
+    }
+
+    public String peekCodeSequence(String category, String prefix, String name, int sequenceLen) {
+        Optional<CodeSequence> codeSequenceOptional = OptionalUtils.expectedAsOptional(codeSequenceDAO.selectByParams(CodeSequence.builder()
+                .category(category)
+                .prefix(prefix)
+                .name(name)
+                .build()));
+
+        int sequence = codeSequenceOptional.map(CodeSequence::getSequence).orElse(0);
+
+        return StringUtils.defaultString(prefix, "") + name + StringUtils.leftPad("" + (sequence + 1), sequenceLen, "0");
+    }
+
+    /**
      *
      * @param category 分类
      * @param prefix 前缀

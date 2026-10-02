@@ -13,6 +13,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 /**
  * @author Rick.Xu
  * @date 2024/9/14 14:22
@@ -137,6 +139,9 @@ public class Customer extends BaseCodeEntity<Long> {
     @Column(columnDefinition = "text", comment = "备注")
     String remark;
 
-    @Column(columnDefinition = "text", comment = "详细跟进记录")
-    String details;
+    /**
+     * 详细计划任务
+     */
+    @OneToMany(subTable = "t_customer_task", joinValue = "instance_id", cascadeInsertOrUpdate = false, cascadeQuery = false)
+    List<CustomerTask> tasks;
 }

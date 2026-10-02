@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="includes/base :: common_header(~{},~{::link},~{::style})">
+    <link rel="stylesheet" th:href="@{/css/tab-common.css}">
+    <style>
+        .task-empty {
+            padding: 40px;
+            text-align: center;
+            color: #999;
+        }
+        .customer-card .card-header {
+            cursor: pointer;
+            background-color: #f0f3f8;
+        }
+        .customer-card .customer-name {
+            font-weight: 600;
+            color: #2f353a;
+        }
+        .task-block {
+            border-left: 3px solid #63c2de;
+            padding-left: 12px;
+            margin-bottom: 10px;
+        }
+        .task-desc {
+            font-weight: 600;
+            color: #4a4a4a;
+            margin-bottom: 6px;
+        }
+        .detail-row {
+            display: flex;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e8e8e8;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+        .detail-date {
+            display: inline-block;
+            min-width: 90px;
+            color: #fff;
+            background-color: #63c2de;
+            border-radius: 3px;
+            padding: 1px 6px;
+            font-size: 12px;
+            margin-right: 10px;
+            text-align: center;
+        }
+        .detail-date.empty {
+            background-color: #c8ced3;
+        }
+        .detail-date.overdue {
+            background-color: #f86c6b;
+        }
+        .detail-desc {
+            flex: 1;
+            word-break: break-all;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body class="app">
+<th:block th:replace="includes/base :: common_content(~{::div})">
+    <div class="container-fluid" style="padding-bottom: 80px;">
+        <div class="card">
+<!--            <div class="card-header">跟进面板</div>-->
+            <div class="card-body row" id="task-list-body">
+                <div th:if="${#lists.isEmpty(groups)}" class="task-empty">
+                    暂无未完成的跟进明细
+                </div>
+
+                <div class="col-6" th:each="cust : ${groups}">
+                    <div class="card customer-card mb-3" th:data-customer="${cust.customerId}">
+                        <div class="card-header py-2 customer-header"
+                             th:data-customer="${cust.customerId}"
+                             th:data-name="${cust.customerName}">
+                            <i class="fa fa-user mr-1"></i>
+                            <span class="customer-name" th:text="${cust.customerName}">客户</span>
+                        </div>
+                        <div class="card-body">
+                            <div th:each="fu : ${cust.tasks}" class="task-block" th:data-task="${fu.taskId}">
+                                <div class="task-desc">
+                                    <i class="fa fa-list-alt mr-1"></i>
+                                    <span th:text="${fu.description}">跟进描述</span>
+                                </div>
+                                <div th:each="d : ${fu.details}" class="detail-row" th:data-detail="${d.detailId}"
+                                     th:with="today=${T(java.time.LocalDate).now().toString()}">
+                                    <span class="detail-date" th:text="${d.occurDate != null ? d.occurDate : '无日期'}" th:classappend="${d.occurDate == null ? ' empty' : (d.occurDate.compareTo(today) <= 0 ? ' overdue' : '')}">日期</span>
+                                    <span class="detail-desc" th:text="${d.description}">明细描述</span>
+                                    <button type="button" class="btn btn-success btn-sm btn-complete"><i class="fa fa-check"></i> 标记完成</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>
+
+<th:block th:replace="includes/base :: common_js(~{::script})">
+    <script th:inline="javascript">
+        const customerFormId = /*[[${customerFormId}]]*/ null
+
+        $(document).on('click', '.customer-header', function () {
+            const id = $(this).data('customer')
+            const name = $(this).data('name')
+            openOnNewTab('customer_' + id, '/forms/page/' + customerFormId + '/' + id, name)
+        })
+
+        $(document).on('click', '.btn-complete', function () {
+            const $row = $(this).closest('.detail-row')
+            const detailId = $row.data('detail')
+            const $btn = $(this)
+            $btn.prop('disabled', true)
+            $.post('/tasks/' + detailId + '/complete', function (res) {
+                if (res && res.success) {
+                    const $fu = $row.closest('.task-block')
+                    $row.remove()
+                    if ($fu.find('.detail-row').length === 0) {
+                        const $card = $fu.closest('.customer-card')
+                        $fu.remove()
+                        if ($card.find('.task-block').length === 0) {
+                            $card.remove()
+                            if ($('.customer-card').length === 0) {
+                                $('#task-list-body').append('<div class="task-empty">暂无未完成的跟进明细</div>')
+                            }
+                        }
+                    }
+                } else {
+                    toastr.error('标记失败')
+                    $btn.prop('disabled', false)
+                }
+            }).fail(function () {
+                toastr.error('请求失败')
+                $btn.prop('disabled', false)
+            })
+        })
+    </script>
+</th:block>
+</body>
+</html>
