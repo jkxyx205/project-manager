@@ -3,7 +3,6 @@
       xmlns:sp="">
 <head th:replace="includes/base :: common_header(~{},~{::link},~{::style})">
     <link rel="stylesheet" th:href="@{/css/tab-common.css}">
-    <link rel="stylesheet" th:href="@{/plugins/bootstrap-datepicker/css/bootstrap-datepicker.min.css}">
     <link rel="stylesheet" th:href="@{/plugins/multiple-select/multiple-select.min.css}">
     <style th:inline="css">
         .ms-parent {
@@ -15,6 +14,10 @@
             border: none;
             height: 33px;
             line-height: 33px;
+        }
+
+        .ms-parent.form-control {
+            width: auto!important;
         }
 
         .form-inline .form-group {
@@ -38,194 +41,324 @@
             }
         }
 
-        .form-inline .form-group {
-            margin-bottom: 0;
+        /* Tab 容器：未激活的 pane 强制隐藏，避免跟进行泄漏到基本信息 */
+        .tab-content > .tab-pane:not(.active) {
+            display: none !important;
         }
 
-        /* 计划任务/明细输入框同行排布，不受 .form-inline .form-control{width:100%} 影响 */
-        #task-list .form-control {
+        /* 基本信息：label 加粗，label 与字段同行（.is-block 区块仍保持上下排布） */
+        .form-inline .form-group:not(.is-block) {
+            display: flex;
+            align-items: center;
+        }
+        .form-inline .form-group:not(.is-block) > label.col-form-label {
+            font-weight: bold;
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
+        /* 所有字段 label 文字后统一追加全角冒号 */
+        #t_customer label::after {
+            content: '：';
+        }
+        .form-inline .form-group:not(.is-block) > *:not(label):not(input[type=hidden]) {
+            flex: 1 1 auto;
+            width: auto;
+            min-width: 0;
+        }
+
+        /* ===== 跟进记录 Tab ===== */
+        .followup-item {
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            background-color: #fff;
+        }
+        .followup-item.is-plan {
+            border-left: 3px solid #4dbd74;
+        }
+        .followup-item.is-record {
+            border-left: 3px solid #63c2de;
+        }
+        .followup-title {
+            font-weight: 600;
+            color: #2f353a;
+            margin-bottom: 8px;
+        }
+        .followup-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px 14px;
+        }
+        .followup-row > .form-group {
+            margin-bottom: 0;
+            min-width: 0;
+        }
+        .followup-row .form-group label {
+            margin: 0 4px 0 0;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: bold;
+            color: #5c6873;
+        }
+        .followup-derived {
+            color: #73818f;
+            font-size: 13px;
+            min-width: 120px;
+        }
+        .followup-item .fu-desc {
+            min-height: 60px;
+        }
+        .followup-item select.form-control {
             width: auto;
         }
+
+        /* ===== 只读 / 编辑模式切换 ===== */
+        /* 只读模式：去掉控件外观，呈纯文本，紧凑可读 */
+        #t_customer.view-mode .form-control {
+            border: 0 !important;
+            background: transparent !important;
+            padding: 0 2px !important;
+            height: auto !important;
+            line-height: 1.5 !important;
+            min-height: 0 !important;
+            box-shadow: none !important;
+            pointer-events: none;
+            color: #2f353a;
+            cursor: default;
+        }
+        #t_customer.view-mode select.form-control {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+        #t_customer.view-mode select.form-control::-ms-expand { display: none; }
+        #t_customer.view-mode textarea.form-control {
+            white-space: pre-wrap;
+            overflow: hidden;
+            resize: none;
+        }
+        #t_customer.view-mode .ms-parent { pointer-events: none; }
+        #t_customer.view-mode .ms-parent .ms-choice {
+            border: 0 !important;
+            background: transparent !important;
+            padding: 0;
+        }
+        #t_customer.view-mode .ms-parent .ms-choice .arrow { display: none; }
+        #t_customer.view-mode .form-group { margin-bottom: 0.35rem; }
+        /* 只读模式隐藏必填星号 */
+        #t_customer.view-mode label.required:before { content: none !important; }
     </style>
 </head>
 <body class="app">
 <th:block th:replace="includes/base :: common_content(~{::div})">
     <div class="container-fluid" style="padding-bottom: 80px;">
         <div class="card">
-            <div class="card-header">基本信息</div>
             <div class="card-body">
-                <form class="form-inline row" id="t_customer" name="t_customer" onsubmit="return false">
+                <form class="form-inline row" th:classappend="${formBO.instanceId == null ? 'edit-mode' : 'view-mode'}" id="t_customer" name="t_customer" onsubmit="return false">
                     <input type="hidden" id="id" th:value="${formBO.instanceId}">
                     <input type="hidden" id="previewCode" name="previewCode" th:value="${formBO.data['previewCode']}">
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label required" for="code">编&nbsp;&nbsp;&nbsp;&nbsp;号</label>
-                        <input class="form-control" type="text" id="code" name="code" th:value="${formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${formBO.instanceId}" required>
-                    </div>
+                    <ul class="nav nav-tabs mb-3 w-100" id="customerTab">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#tab-basic">基本信息</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab-followup">跟进记录</a>
+                        </li>
+                    </ul>
 
-                    <div class="form-group col-12 col-sm-8">
-                        <label class="col-form-label required" for="name">客&nbsp;&nbsp;&nbsp;&nbsp;户</label>
-                        <input class="form-control" type="text" id="name" name="name" th:value="${formBO.data.name}" required>
-                    </div>
+                    <div class="tab-content w-100" style="border: none;">
+                        <!-- ===== 基本信息 ===== -->
+                        <div class="tab-pane fade show active" id="tab-basic">
+                          <div class="row">
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label required" for="code">编&nbsp;&nbsp;&nbsp;&nbsp;号</label>
+                                <input class="form-control" type="text" id="code" name="code" th:value="${formBO.data.code}" pattern="^[0-9a-zA-Z_\/%\-]{1,}$" th:disabled="${formBO.instanceId}" required>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="national">国&nbsp;&nbsp;&nbsp;&nbsp;家</label>
-                        <sp:select class="form-control" id="national" name="national" key="t_country" th:value="${formBO.data.national ne null ? formBO.data.national : ''}" group/>
-                    </div>
+                            <div class="form-group col-12 col-sm-8">
+                                <label class="col-form-label required" for="name">客&nbsp;&nbsp;&nbsp;&nbsp;户</label>
+                                <input class="form-control" type="text" id="name" name="name" th:value="${formBO.data.name}" required>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-8">
-                        <label class="col-form-label" for="address">地&nbsp;&nbsp;&nbsp;&nbsp;址</label>
-                        <input class="form-control" type="text" id="address" name="address" th:value="${formBO.data.address}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="national">国&nbsp;&nbsp;&nbsp;&nbsp;家</label>
+                                <sp:select class="form-control" id="national" name="national" key="t_country" th:value="${formBO.data.national ne null ? formBO.data.national : ''}" group/>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="postcode">邮&nbsp;&nbsp;&nbsp;&nbsp;编</label>
-                        <input class="form-control" type="text" id="postcode" name="postcode" th:value="${formBO.data.postcode}">
-                    </div>
+                            <div class="form-group col-12 col-sm-8">
+                                <label class="col-form-label" for="address">地&nbsp;&nbsp;&nbsp;&nbsp;址</label>
+                                <input class="form-control" type="text" id="address" name="address" th:value="${formBO.data.address}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label required" for="contactName">联&nbsp;系&nbsp;人</label>
-                        <input class="form-control" type="text" id="contactName" name="contactName" th:value="${formBO.data.contactName}" required>
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="postcode">邮&nbsp;&nbsp;&nbsp;&nbsp;编</label>
+                                <input class="form-control" type="text" id="postcode" name="postcode" th:value="${formBO.data.postcode}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="contactTitle">职&nbsp;&nbsp;&nbsp;&nbsp;位</label>
-                        <input class="form-control" type="text" id="contactTitle" name="contactTitle" th:value="${formBO.data.contactTitle}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label required" for="contactName">联&nbsp;系&nbsp;人</label>
+                                <input class="form-control" type="text" id="contactName" name="contactName" th:value="${formBO.data.contactName}" required>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="contactPhone">电&nbsp;&nbsp;&nbsp;&nbsp;话/WhatsApp</label>
-                        <input class="form-control" type="text" id="contactPhone" name="contactPhone" th:value="${formBO.data.contactPhone}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="contactTitle">职&nbsp;&nbsp;&nbsp;&nbsp;位</label>
+                                <input class="form-control" type="text" id="contactTitle" name="contactTitle" th:value="${formBO.data.contactTitle}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="contactMail">邮&nbsp;&nbsp;&nbsp;&nbsp;箱</label>
-                        <input class="form-control" type="email" id="contactMail" name="contactMail" th:value="${formBO.data.contactMail}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="contactPhone">电&nbsp;&nbsp;&nbsp;&nbsp;话/WhatsApp</label>
+                                <input class="form-control" type="text" id="contactPhone" name="contactPhone" th:value="${formBO.data.contactPhone}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="website">公司网站</label>
-                        <input class="form-control" type="text" id="website" name="website" th:value="${formBO.data.website}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="contactMail">邮&nbsp;&nbsp;&nbsp;&nbsp;箱</label>
+                                <input class="form-control" type="email" id="contactMail" name="contactMail" th:value="${formBO.data.contactMail}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="facebook">Facebook</label>
-                        <input class="form-control" type="text" id="facebook" name="facebook" th:value="${formBO.data.facebook}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="website">公司网站</label>
+                                <input class="form-control" type="text" id="website" name="website" th:value="${formBO.data.website}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="instagram">Instagram</label>
-                        <input class="form-control" type="text" id="instagram" name="instagram" th:value="${formBO.data.instagram}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="facebook">Facebook</label>
+                                <input class="form-control" type="text" id="facebook" name="facebook" th:value="${formBO.data.facebook}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="youTube">YouTube</label>
-                        <input class="form-control" type="text" id="youTube" name="youTube" th:value="${formBO.data.youTube}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="instagram">Instagram</label>
+                                <input class="form-control" type="text" id="instagram" name="instagram" th:value="${formBO.data.instagram}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="linkedin">Linkedin</label>
-                        <input class="form-control" type="text" id="linkedin" name="linkedin" th:value="${formBO.data.linkedin}">
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="youTube">YouTube</label>
+                                <input class="form-control" type="text" id="youTube" name="youTube" th:value="${formBO.data.youTube}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="customerType">客户类型</label>
-                        <sp:select class="form-control" id="customerType" name="customerType" key="CUSTOMER_TYPE" th:value="${formBO.data.customerType ne null ? formBO.data.customerType : ''}"/>
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="linkedin">Linkedin</label>
+                                <input class="form-control" type="text" id="linkedin" name="linkedin" th:value="${formBO.data.linkedin}">
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="source">来&nbsp;&nbsp;&nbsp;&nbsp;源</label>
-                        <sp:select class="form-control" id="source" name="source" key="SOURCE" th:value="${formBO.data.source ne null ? formBO.data.source : ''}"/>
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="customerType">客户类型</label>
+                                <sp:select class="form-control" id="customerType" name="customerType" key="CUSTOMER_TYPE" th:value="${formBO.data.customerType ne null ? formBO.data.customerType : ''}"/>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="level">级&nbsp;&nbsp;&nbsp;&nbsp;别</label>
-                        <sp:select class="form-control" id="level" name="level" key="LEVEL" th:value="${formBO.data.level ne null ? formBO.data.level : ''}"/>
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="source">来&nbsp;&nbsp;&nbsp;&nbsp;源</label>
+                                <sp:select class="form-control" id="source" name="source" key="SOURCE" th:value="${formBO.data.source ne null ? formBO.data.source : ''}"/>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-8">
-                        <label class="col-form-label" for="status">现阶段状态</label>
-                        <sp:select class="form-control" id="status" name="status" key="STATUS" th:value="${formBO.data.status ne null ? formBO.data.status : ''}"/>
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="level">级&nbsp;&nbsp;&nbsp;&nbsp;别</label>
+                                <sp:select class="form-control" id="level" name="level" key="LEVEL" th:value="${formBO.data.level ne null ? formBO.data.level : ''}"/>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="purchasePlan">采购计划<span th:hidden="${formBO.data.purchasePlan.updateTime == null}" th:text="${'（' +#temporals.format(formBO.data.purchasePlan.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新）'}"></span></label>
-                        <input class="form-control" type="hidden" name="purchasePlan.category" value="PURCHASE_PLAN">
-                        <textarea class="form-control" id="purchasePlan" name="purchasePlan.content" th:text="${formBO.data.purchasePlan.content}">
-                        </textarea>
-                    </div>
+                            <div class="form-group col-12 col-sm-8">
+                                <label class="col-form-label" for="status">现阶段状态</label>
+                                <sp:select class="form-control" id="status" name="status" key="STATUS" th:value="${formBO.data.status ne null ? formBO.data.status : ''}"/>
+                            </div>
 
-                    <div class="form-group col-12 col-sm-4">
-                        <label class="col-form-label" for="backgroundInvestigation">背景调查<span th:hidden="${formBO.data.backgroundInvestigation.updateTime == null}" th:text="${'（' + #temporals.format(formBO.data.backgroundInvestigation.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新）'}"></span></label>
-                        <input class="form-control" type="hidden" name="backgroundInvestigation.category" value="BACKGROUND_INVESTIGATION">
-                        <textarea class="form-control" id="backgroundInvestigation" name="backgroundInvestigation.content" th:text="${formBO.data.backgroundInvestigation.content}">
-                        </textarea>
-                    </div>
+                            <div class="form-group col-12 col-sm-12">
+                                <label class="col-form-label" for="tags">客户标签</label>
+                                <sp:select class="form-control" id="tags" name="tags" key="CUSTOMER_TAG" group multiple hideDummyItemText/>
+                            </div>
 
-                    <div class="form-group col-4">
-                        <label class="col-form-label" for="requirement">客户需求</label>
-                        <textarea class="form-control" id="requirement" name="requirement" th:text="${formBO.data.requirement}"></textarea>
-                    </div>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="purchasePlan">采购计划<span th:hidden="${formBO.data.purchasePlan.updateTime == null}" th:text="${'（' +#temporals.format(formBO.data.purchasePlan.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新）'}"></span></label>
+                                <input class="form-control" type="hidden" name="purchasePlan.category" value="PURCHASE_PLAN">
+                                <textarea class="form-control" id="purchasePlan" name="purchasePlan.content" th:text="${formBO.data.purchasePlan.content}">
+                                </textarea>
+                            </div>
 
-                    <div class="form-group col-12">
-                        <label class="col-form-label">详细计划任务</label>
-                        <div id="task-list" class="mt-1">
-                            <th:block th:each="fu, iter : ${formBO.data.tasks}">
-                                <div class="task-item card mb-2">
-                                    <input type="hidden" class="fu-id" th:value="${fu.id}">
-                                    <div class="card-body py-2">
-                                        <div class="d-flex align-items-center flex-wrap">
-                                            <label class="mb-0 mr-2"><input type="checkbox" class="fu-completed" th:checked="${fu.completed}"> 完成</label>
-                                            <input type="text" class="form-control fu-desc flex-grow-1 mr-2" style="min-width:400px" placeholder="跟进描述（必填）" th:value="${fu.description}" required>
-                                            <button type="button" class="btn btn-danger btn-sm btn-del-task"><i class="fa fa-trash"></i> 删除跟进</button>
-                                        </div>
-                                        <div class="detail-list mt-2">
-                                            <th:block th:each="d : ${fu.details}">
-                                                <div class="detail-item d-flex align-items-center flex-wrap mb-1">
-                                                    <input type="hidden" class="d-id" th:value="${d.id}">
-                                                    <label class="mb-0 mr-2"><input type="checkbox" class="d-completed" th:checked="${d.completed}"> 完成</label>
-                                                    <input type="text" class="form-control d-date mr-2" style="max-width:140px" placeholder="日期" th:value="${d.occurDate != null ? #temporals.format(d.occurDate, 'yyyy-MM-dd') : ''}">
-                                                    <input type="text" class="form-control d-desc flex-grow-1 mr-2" style="min-width:260px" placeholder="明细描述（必填）" th:value="${d.description}" required>
-                                                    <button type="button" class="btn btn-danger btn-sm btn-del-detail"><i class="fa fa-trash"></i></button>
-                                                </div>
-                                            </th:block>
-                                        </div>
-                                        <button type="button" class="btn btn-info btn-sm btn-add-detail"><i class="fa fa-plus"></i> 添加明细</button>
-                                    </div>
-                                </div>
-                            </th:block>
+                            <div class="form-group col-12 col-sm-4">
+                                <label class="col-form-label" for="backgroundInvestigation">背景调查<span th:hidden="${formBO.data.backgroundInvestigation.updateTime == null}" th:text="${'（' + #temporals.format(formBO.data.backgroundInvestigation.updateTime, 'yyyy-MM-dd HH:mm:ss') + '更新）'}"></span></label>
+                                <input class="form-control" type="hidden" name="backgroundInvestigation.category" value="BACKGROUND_INVESTIGATION">
+                                <textarea class="form-control" id="backgroundInvestigation" name="backgroundInvestigation.content" th:text="${formBO.data.backgroundInvestigation.content}">
+                                </textarea>
+                            </div>
+
+                              <div class="form-group col-12 col-sm-4">
+                                  <label class="col-form-label" for="requirement">客户需求</label>
+                                  <textarea class="form-control" id="requirement" name="requirement"
+                                            th:text="${formBO.data.requirement}"></textarea>
+                              </div>
+
+<!--                            <div class="form-group col-12 col-sm-4">-->
+<!--                                <label class="col-form-label" for="requirement">客户需求</label>-->
+<!--                                <textarea class="form-control" id="requirement" name="requirement" th:text="${formBO.data.requirement}"></textarea>-->
+<!--                            </div>-->
+
+                            <div class="form-group col-12">
+                                <label class="col-form-label" for="remark">备&nbsp;&nbsp;&nbsp;&nbsp;注</label>
+                                <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
+                            </div>
+                          </div>
                         </div>
-                        <button type="button" class="btn btn-success btn-sm mt-1" id="btn-add-task"><i class="fa fa-plus"></i> 添加计划任务</button>
-                    </div>
 
-                    <template id="tpl-task">
-                        <div class="task-item card mb-2">
-                            <input type="hidden" class="fu-id">
-                            <div class="card-body py-2">
-                                <div class="d-flex align-items-center flex-wrap">
-                                    <label class="mb-0 mr-2"><input type="checkbox" class="fu-completed"> 完成</label>
-                                    <input type="text" class="form-control fu-desc flex-grow-1 mr-2" style="min-width:200px" placeholder="跟进描述（必填）" required>
-                                    <button type="button" class="btn btn-danger btn-sm btn-del-task"><i class="fa fa-trash"></i> 删除跟进</button>
-                                </div>
-                                <div class="detail-list mt-2"></div>
-                                <button type="button" class="btn btn-info btn-sm btn-add-detail"><i class="fa fa-plus"></i> 添加明细</button>
+                        <!-- ===== 跟进记录 ===== -->
+                        <div class="tab-pane fade" id="tab-followup">
+                            <div class="mb-2">
+                                <button type="button" class="btn btn-success btn-sm" id="btn-add-plan"><i class="fa fa-plus"></i> 新增计划</button>
+                                <button type="button" class="btn btn-info btn-sm ml-1" id="btn-add-record"><i class="fa fa-plus"></i> 新增记录</button>
+                            </div>
+                            <div id="followup-list">
+                                <th:block th:each="fu : ${formBO.data.tasks}">
+                                    <div class="followup-item" th:classappend="${fu.type == 'PLAN' ? 'is-plan' : 'is-record'}">
+                                        <input type="hidden" class="fu-id" th:value="${fu.id}">
+                                        <div class="followup-title"></div>
+                                        <div class="followup-row">
+                                            <div class="form-group">
+                                                <label>详情类型</label>
+                                                <select class="form-control fu-type">
+                                                    <option value="PLAN" th:selected="${fu.type == 'PLAN'}">计划</option>
+                                                    <option value="RECORD" th:selected="${fu.type == null || fu.type == 'RECORD'}">记录</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>北京时间</label>
+                                                <input type="datetime-local" class="form-control fu-beijing" th:value="${fu.beijingTime != null ? #temporals.format(fu.beijingTime, 'yyyy-MM-dd''T''HH:mm') : ''}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>客户时间</label>
+                                                <span class="followup-derived fu-customer-time">—</span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>间隔</label>
+                                                <span class="followup-derived fu-interval">—</span>
+                                            </div>
+                                            <div class="form-group">
+                                                <label>现阶段状态</label>
+                                                <select class="form-control fu-status"></select>
+                                            </div>
+                                        </div>
+                                        <div class="followup-row mt-1">
+                                            <div class="form-group flex-grow-1">
+                                                <label>客户标签</label>
+                                                <select class="form-control fu-tags" multiple></select>
+                                            </div>
+                                            <div class="form-group flex-grow-1">
+                                                <label>沟通方式</label>
+                                                <select class="form-control fu-communication" multiple></select>
+                                            </div>
+                                        </div>
+                                        <div class="followup-row mt-1">
+                                            <div class="form-group flex-grow-1">
+                                                <label>描述</label>
+                                                <textarea class="form-control fu-desc" th:text="${fu.description}"></textarea>
+                                            </div>
+                                            <div class="form-group">
+                                                <button type="button" class="btn btn-danger btn-sm btn-del-followup"><i class="fa fa-trash"></i> 删除</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </th:block>
                             </div>
                         </div>
-                    </template>
-
-                    <template id="tpl-detail">
-                        <div class="detail-item d-flex align-items-center flex-wrap mb-1">
-                            <input type="hidden" class="d-id">
-                            <label class="mb-0 mr-2"><input type="checkbox" class="d-completed"> 完成</label>
-                            <input type="text" class="form-control d-date mr-2" style="max-width:140px" placeholder="日期">
-                            <input type="text" class="form-control d-desc flex-grow-1 mr-2" style="min-width:160px" placeholder="明细描述（必填）" required>
-                            <button type="button" class="btn btn-danger btn-sm btn-del-detail"><i class="fa fa-trash"></i></button>
-                        </div>
-                    </template>
-
-                    <div class="form-group col-12">
-                        <label class="col-form-label" for="remark">备&nbsp;&nbsp;&nbsp;&nbsp;注</label>
-                        <textarea class="form-control" id="remark" name="remark" th:text="${formBO.data.remark}"></textarea>
                     </div>
                 </form>
             </div>
@@ -234,14 +367,65 @@
 </th:block>
 
 <div style="position: fixed; left: 0; bottom: 0; width: 100%; padding: 15px; border-top: 1px solid #c8ced3; background-color: #FFFFFF; text-align: center">
-    <button type="button" class="btn btn-primary btn-save mr-2" th:onclick="t_customerFormDOM.save()"><i class="fa fa-save"></i> 保存</button>
+    <button type="button" class="btn btn-warning btn-edit mr-2" th:style="${formBO.instanceId == null ? 'display:none;' : ''}"><i class="fa fa-edit"></i> 编辑</button>
+    <button type="button" class="btn btn-primary btn-save mr-2" th:style="${formBO.instanceId != null ? 'display:none;' : ''}" th:onclick="t_customerFormDOM.save()"><i class="fa fa-save"></i> 保存</button>
+</div>
+
+<!-- 客户端新增行模板：用 display:none 的 div 承载，不会被浏览器渲染，也不在 form 内（不会被序列化）；sp:select 为服务端标签不能放入其中，行内下拉由 JS 构建 -->
+<div id="tpl-followup" style="display:none">
+    <div class="followup-item">
+        <input type="hidden" class="fu-id">
+        <div class="followup-title"></div>
+        <div class="followup-row">
+            <div class="form-group">
+                <label>详情类型</label>
+                <select class="form-control fu-type">
+                    <option value="PLAN">计划</option>
+                    <option value="RECORD">记录</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>北京时间</label>
+                <input type="datetime-local" class="form-control fu-beijing">
+            </div>
+            <div class="form-group">
+                <label>客户时间</label>
+                <span class="followup-derived fu-customer-time">—</span>
+            </div>
+            <div class="form-group">
+                <label>间隔</label>
+                <span class="followup-derived fu-interval">—</span>
+            </div>
+            <div class="form-group">
+                <label>现阶段状态</label>
+                <select class="form-control fu-status"></select>
+            </div>
+        </div>
+        <div class="followup-row mt-1">
+            <div class="form-group flex-grow-1">
+                <label>客户标签</label>
+                <select class="form-control fu-tags" multiple></select>
+            </div>
+            <div class="form-group flex-grow-1">
+                <label>沟通方式</label>
+                <select class="form-control fu-communication" multiple></select>
+            </div>
+        </div>
+        <div class="followup-row mt-1">
+            <div class="form-group flex-grow-1">
+                <label>描述</label>
+                <textarea class="form-control fu-desc"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-danger btn-sm btn-del-followup"><i class="fa fa-trash"></i> 删除</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <th:block th:replace="includes/base :: common_js(~{::script})">
     <script type="text/javascript" th:src="@{/plugins/jquery.form2json.js}"></script>
     <script type="text/javascript" th:src="@{/plugins/multiple-select/multiple-select.min.js}"></script>
-    <script th:src="@{/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js}"></script>
-    <script th:src="@{/plugins/bootstrap-datepicker/js/bootstrap-datepicker.zh-CN.min.js}"></script>
     <script th:src="@{/js/form-support.js}"></script>
     <script th:inline="javascript">
         let formBO = /*[[${ formBO }]]*/
@@ -258,81 +442,303 @@
         // 国家下拉改为可筛选单选（沿用 multiple-select 插件，与 SEARCH_SELECT 一致）
         $('#national').multipleSelect({filter: true, single: true, placeholder: '请选择国家'})
 
-        // ===== 详细计划任务 =====
-        const DATEPICKER_OPTS = {language: "zh-CN", autoclose: true, clearBtn: true, todayBtn: 'linked', todayHighlight: true, format: 'yyyy-mm-dd'}
+        // 客户时区（IANA）：初始取后端 formBO.data.customerTimezone，国家变更时 AJAX 刷新
+        let customerTimezone = originalFormData.customerTimezone || null
 
-        function initDatepickers($scope) {
-            $scope.find('.d-date').not('.has-dp').each(function () {
-                $(this).datepicker(DATEPICKER_OPTS).addClass('has-dp')
+        function loadTimezoneByCountry(countryId) {
+            if (!countryId) { customerTimezone = null; recomputeAll(); return }
+            $.getJSON('/country/timezone', {id: countryId}, function (res) {
+                customerTimezone = (res && res.timezone) || null
+                recomputeAll()
             })
         }
 
-        function addTask() {
-            const $item = $($('#tpl-task').html())
-            $('#task-list').append($item)
-            addDetail($item) // 默认带一条明细
-        }
-
-        function addDetail($taskItem) {
-            const $d = $($('#tpl-detail').html())
-            $taskItem.find('.detail-list').append($d)
-            initDatepickers($d)
-            syncTaskCompleted($taskItem)
-        }
-
-        // 计划任务的「完成」由其下明细自动联动：
-        //  - 所有明细都完成 → 跟进自动完成
-        //  - 新增未完成的明细 → 跟进自动取消完成
-        //  - 手动勾选跟进的「完成」不影响明细（故该函数不在 fu-completed 上触发）
-        function syncTaskCompleted($taskItem) {
-            const $cbs = $taskItem.find('.detail-item .d-completed')
-            const allDone = $cbs.length > 0 && $cbs.filter(':checked').length === $cbs.length
-            $taskItem.find('.fu-completed').prop('checked', allDone)
-        }
-
-        $('#btn-add-task').on('click', function () { addTask() })
-        $('#task-list').on('click', '.btn-add-detail', function () { addDetail($(this).closest('.task-item')) })
-        $('#task-list').on('click', '.btn-del-task', function () { $(this).closest('.task-item').remove() })
-        $('#task-list').on('click', '.btn-del-detail', function () {
-            const $fu = $(this).closest('.task-item')
-            $(this).closest('.detail-item').remove()
-            syncTaskCompleted($fu)
-        })
-        $('#task-list').on('change', '.d-completed', function () {
-            syncTaskCompleted($(this).closest('.task-item'))
+        // national 的值可能是 "id" 字符串；multipleSelect 单选取 getSelects 返回数组
+        $('#national').on('change', function () {
+            const sel = $(this).multipleSelect('getSelects') || []
+            loadTimezoneByCountry(sel[0])
         })
 
-        initDatepickers($('#task-list'))
+        // ===== 客户标签（基本信息）多选 =====
+        // 在 multipleSelect 改造 #tags 之前，先快照其 optgroup/option 结构，供跟进行克隆
+        const TAG_OPTIONS_HTML = $('#tags').html()
+        $('#tags').multipleSelect({
+            filter: true, single: false, selectAll: true, placeholder: '请选择客户标签'
+        })
+        ;(function () {
+            const csv = originalFormData.tags || ''
+            if (csv) $('#tags').multipleSelect('setSelects', csv.split(','))
+        })()
 
-        function buildTasks() {
-            return $('#task-list .task-item').map(function () {
+        // ===== 跟进记录 =====
+        // 选项数据：STATUS / COMMUNICATION 走 /dicts 接口；TAG 分组选项直接克隆基本信息 #tags 的 optgroup/option
+        let STATUS_OPTIONS = []
+        let COMMUNICATION_OPTIONS = []
+
+        function buildSelectOptions($sel, options, selectedCsv, multiple) {
+            $sel.empty()
+            if (!multiple) {
+                $sel.append('<option value="">请选择</option>')
+            }
+            options.forEach(function (o) {
+                $sel.append($('<option></option>').val(o.id).text(o.name))
+            })
+        }
+
+        function initRowSelects($item, tagsCsv, communicationCsv, statusVal) {
+            // 现阶段状态：单选
+            const $status = $item.find('.fu-status')
+            buildSelectOptions($status, STATUS_OPTIONS, statusVal, false)
+            $status.val(statusVal || '')
+
+            // 客户标签：分组多选，选项克隆自 #tags 快照
+            const $tags = $item.find('.fu-tags')
+            $tags.html(TAG_OPTIONS_HTML)
+            $tags.multipleSelect({filter: true, single: false, selectAll: true, placeholder: '请选择标签'})
+            if (tagsCsv) $tags.multipleSelect('setSelects', tagsCsv.split(','))
+
+            // 沟通方式：多选
+            const $comm = $item.find('.fu-communication')
+            buildSelectOptions($comm, COMMUNICATION_OPTIONS, communicationCsv, true)
+            $comm.multipleSelect({filter: true, single: false, selectAll: true, placeholder: '请选择沟通方式'})
+            if (communicationCsv) $comm.multipleSelect('setSelects', communicationCsv.split(','))
+        }
+
+        function addFollowUp(type) {
+            const $item = $($('#tpl-followup').html())
+            $item.find('.fu-type').val(type)
+            $item.addClass(type === 'PLAN' ? 'is-plan' : 'is-record')
+            $('#followup-list').append($item)
+            initRowSelects($item, '', '', '')
+            recomputeAll()
+        }
+
+        $('#btn-add-plan').on('click', function () { addFollowUp('PLAN') })
+        $('#btn-add-record').on('click', function () { addFollowUp('RECORD') })
+        $('#followup-list').on('click', '.btn-del-followup', function () {
+            $(this).closest('.followup-item').remove()
+            recomputeAll()
+        })
+        $('#followup-list').on('input change', '.fu-beijing', function () {
+            recomputeAll()
+        })
+        // 切换详情类型：更新行样式并重算标题（计划→下一次跟进计划；记录→最近一次/第N次跟进）
+        $('#followup-list').on('change', '.fu-type', function () {
+            const $item = $(this).closest('.followup-item')
+            const type = $(this).val()
+            $item.removeClass('is-plan is-record').addClass(type === 'PLAN' ? 'is-plan' : 'is-record')
+            recomputeAll()
+        })
+
+        // 由北京时间字符串（datetime-local: yyyy-MM-ddTHH:mm）构造 Asia/Shanghai 的 Date
+        function beijingDate(localStr) {
+            if (!localStr) return null
+            // 墙钟按 +08:00 解释为瞬间
+            const d = new Date(localStr + '+08:00')
+            return isNaN(d.getTime()) ? null : d
+        }
+
+        // 客户时间：把北京墙钟转到客户时区显示
+        function formatCustomerTime(localStr) {
+            if (!localStr || !customerTimezone) return ''
+            const d = beijingDate(localStr)
+            if (!d) return ''
+            // yyyy-MM-dd HH:mm（客户时区）
+            const parts = new Intl.DateTimeFormat('zh-CN', {
+                timeZone: customerTimezone, year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', hour12: false
+            }).formatToParts(d)
+            const get = function (t) { const p = parts.find(function (x) { return x.type === t }); return p ? p.value : '' }
+            return get('year') + '-' + get('month') + '-' + get('day') + ' ' + get('hour') + ':' + get('minute')
+        }
+
+        function daysBetween(a, b) {
+            const da = beijingDate(a), db = beijingDate(b)
+            if (!da || !db) return ''
+            const ms = db.getTime() - da.getTime()
+            return Math.ceil(ms / 86400000)
+        }
+
+        // 重新计算所有派生字段：标题、客户时间、间隔
+        function recomputeAll() {
+            const $items = $('#followup-list .followup-item')
+            // 收集行 + 北京时间
+            const rows = $items.map(function () {
                 const $f = $(this)
+                return { $el: $f, beijing: $f.find('.fu-beijing').val() || '', type: $f.find('.fu-type').val() || 'RECORD' }
+            }).get()
+
+            // 排序辅助：按北京时间升序（空值排最后）
+            const withTime = rows.filter(function (r) { return !!r.beijing })
+            withTime.sort(function (a, b) {
+                const ta = beijingDate(a.beijing).getTime(), tb = beijingDate(b.beijing).getTime()
+                return ta - tb
+            })
+
+            // 间隔：升序相邻天数差，最早一条空
+            withTime.forEach(function (r, idx) {
+                if (idx === 0) {
+                    r.interval = ''
+                } else {
+                    r.interval = daysBetween(withTime[idx - 1].beijing, r.beijing)
+                }
+            })
+
+            // 记录类按倒序排名 → 标题
+            const records = withTime.filter(function (r) { return r.type === 'RECORD' })
+            // 倒序：最新的在前
+            records.sort(function (a, b) { return beijingDate(b.beijing).getTime() - beijingDate(a.beijing).getTime() })
+            const N = records.length
+            const titleMap = {}
+            records.forEach(function (r, i) {
+                if (i === 0) {
+                    r.title = '最近一次跟进'
+                } else {
+                    r.title = '第' + (N - i) + '次跟进'
+                }
+            })
+
+            // 计划类标题统一
+            rows.forEach(function (r) {
+                if (r.type === 'PLAN') r.title = '下一次跟进计划'
+            })
+
+            // 无时间的行：占位标题
+            rows.forEach(function (r) {
+                if (r.title === undefined) r.title = r.type === 'PLAN' ? '下一次跟进计划' : '（未填写时间）'
+                if (r.interval === undefined) r.interval = ''
+            })
+
+            // 回写 DOM
+            rows.forEach(function (r) {
+                r.$el.find('.followup-title').text(r.title)
+                r.$el.find('.fu-customer-time').text(formatCustomerTime(r.beijing) || '—')
+                r.$el.find('.fu-interval').text(r.interval === '' ? '—' : (r.interval + ' 天'))
+            })
+        }
+
+        // 收集跟进详情 → formData.tasks
+        // 注意：multipleSelect 未初始化时 getSelects 会抛异常，故用 val() 兜底
+        function getMultiVal($el) {
+            if (!$el.length) return []
+            try { return $el.multipleSelect('getSelects') || [] }
+            catch (e) {
+                const v = $el.val()
+                return v == null ? [] : ($.isArray(v) ? v : [v])
+            }
+        }
+
+        function buildFollowUps() {
+            return $('#followup-list .followup-item').map(function () {
+                const $f = $(this)
+                const tags = getMultiVal($f.find('.fu-tags')).join(',')
+                const comm = getMultiVal($f.find('.fu-communication')).join(',')
                 return {
                     id: $f.find('.fu-id').val() || null,
-                    description: $f.find('.fu-desc').val(),
-                    completed: $f.find('.fu-completed').is(':checked'),
-                    details: $f.find('.detail-item').map(function () {
-                        const $d = $(this)
-                        return {
-                            id: $d.find('.d-id').val() || null,
-                            occurDate: $d.find('.d-date').val() || null,
-                            description: $d.find('.d-desc').val(),
-                            completed: $d.find('.d-completed').is(':checked')
-                        }
-                    }).get()
+                    type: $f.find('.fu-type').val() || 'RECORD',
+                    // datetime-local 原始值 yyyy-MM-ddTHH:mm，与实体 @DateTimeFormat pattern 一致
+                    beijingTime: $f.find('.fu-beijing').val() || null,
+                    status: $f.find('.fu-status').val() || null,
+                    tags: tags || null,
+                    communication: comm || null,
+                    description: $f.find('.fu-desc').val()
                 }
             }).get()
         }
 
+        // ===== 只读 / 编辑模式切换 =====
+        // 只读模式自动撑开 textarea 至内容高度，便于阅读
+        function autoSizeTextareas(enable) {
+            $('#t_customer textarea.form-control').each(function () {
+                if (enable) {
+                    // 隐藏 Tab 内的暂跳过，待 shown.bs.tab 时再撑开
+                    if (!$(this).is(':visible')) return
+                    this.style.height = 'auto'
+                    this.style.height = this.scrollHeight + 'px'
+                } else {
+                    this.style.height = ''
+                }
+            })
+        }
+
+        function setEditMode(edit) {
+            $('#t_customer').toggleClass('view-mode', !edit).toggleClass('edit-mode', edit)
+            $('.btn-edit').toggle(!edit)
+            $('.btn-save').toggle(edit)
+            // 跟进记录区的操作按钮：仅编辑模式可见
+            $('#btn-add-plan, #btn-add-record').toggle(edit)
+            $('#followup-list .btn-del-followup').toggle(edit)
+            autoSizeTextareas(!edit)
+        }
+
+        $('.btn-edit').on('click', function () { setEditMode(true) })
+
+        // 切到跟进 Tab 时，若处于只读模式，补一次 textarea 撑开（之前因 Tab 隐藏无法测量）
+        $('a[href="#tab-followup"]').on('shown.bs.tab', function () {
+            if ($('#t_customer').hasClass('view-mode')) autoSizeTextareas(true)
+        })
+
         $('.btn-save').removeAttr("onclick").on('click', function () {
-            if (t_customerFormDOM.valid()) {
-                t_customerFormDOM.save(() => {
-                    toastr.success("保存成功")
-                }, (formData) => {
-                    formData.tasks = buildTasks()
-                })
+            try {
+                if (!t_customerFormDOM || typeof t_customerFormDOM.save !== 'function') {
+                    toastr.error("表单未初始化，请刷新页面后重试")
+                    return
+                }
+                if (t_customerFormDOM.valid()) {
+                    t_customerFormDOM.save(() => {
+                        toastr.success("保存成功")
+                        setEditMode(false) // 保存成功后回到只读模式
+                    }, (formData) => {
+                        // 客户标签以 CSV 提交
+                        formData.tags = ($('#tags').multipleSelect('getSelects') || []).join(',')
+                        formData.tasks = buildFollowUps()
+                    })
+                } else {
+                    toastr.error("请检查必填项（编号 / 客户 / 联系人）")
+                }
+            } catch (e) {
+                console.error("保存处理异常", e)
+                toastr.error("保存异常：" + (e && e.message ? e.message : e))
             }
         })
+
+        // ===== 初始化 =====
+        $.getJSON('/dicts', {codes: 'STATUS,COMMUNICATION'}, function (data) {
+            STATUS_OPTIONS = (data.STATUS || []).map(function (d) { return {id: d.name, name: d.label} })
+            COMMUNICATION_OPTIONS = (data.COMMUNICATION || []).map(function (d) { return {id: d.name, name: d.label} })
+
+            // 已有跟进：按北京时间倒序排列后初始化下拉
+            const $items = $('#followup-list .followup-item')
+            $items.sort(function (a, b) {
+                const ta = ($(a).find('.fu-beijing').val() || ''), tb = ($(b).find('.fu-beijing').val() || '')
+                if (!ta && !tb) return 0
+                if (!ta) return 1
+                if (!tb) return -1
+                return beijingDate(tb).getTime() - beijingDate(ta).getTime() // desc
+            })
+            $('#followup-list').append($items)
+
+            $items.each(function () {
+                const $f = $(this)
+                initRowSelects($f, $f.data('tags') || '', $f.data('communication') || '', $f.data('status') || '')
+            })
+            recomputeAll()
+        })
+
+        // 把已有行的 tags/communication/status 暂存到 data-* 上（在 multipleSelect 重写 select 前读取）
+        // 注意：服务端渲染时 select 内尚未填选项，CSV 值无法用 val() 取，故用 data-* 传递
+        ;(function () {
+            const tasks = originalFormData.tasks || []
+            $('#followup-list .followup-item').each(function (i) {
+                const fu = tasks[i] || {}
+                $(this).data('tags', fu.tags || '')
+                $(this).data('communication', fu.communication || '')
+                $(this).data('status', fu.status || '')
+            })
+        })()
+
+        // 初始模式：新建客户→编辑模式；已有客户→只读模式
+        setEditMode(!formBO.instanceId)
     </script>
 </th:block>
 </body>

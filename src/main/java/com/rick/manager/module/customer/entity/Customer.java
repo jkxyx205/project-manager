@@ -136,6 +136,12 @@ public class Customer extends BaseCodeEntity<Long> {
      */
     String status;
 
+    /**
+     * 客户标签（CSV，CUSTOMER_TAG 字典编码）
+     */
+    @Column(columnDefinition = "text", comment = "客户标签(CSV)")
+    String tags;
+
     @Column(columnDefinition = "text", comment = "备注")
     String remark;
 

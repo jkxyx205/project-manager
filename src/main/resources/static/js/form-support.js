@@ -141,7 +141,20 @@ function sharpFormInit(formDOM, idDOM, options, reloadTabIds, elseValid) {
                     setTimeout(() => {
                         _reloadTab(reloadTabIds)
                     }, 1000)
+                } else {
+                    console.error("保存失败 res = ", res)
+                    toastr.error(res.message || "保存失败，请检查输入或必填项")
                 }
+            },
+            error: function(xhr) {
+                console.error("保存请求异常", xhr.status, xhr.responseText)
+                let msg = "保存失败（HTTP " + xhr.status + "）"
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message
+                } else if (xhr.responseText) {
+                    msg = "保存失败：" + xhr.responseText.substring(0, 200)
+                }
+                toastr.error(msg)
             }
         });
 

@@ -3,59 +3,38 @@
 <head th:replace="includes/base :: common_header(~{},~{::link},~{::style})">
     <link rel="stylesheet" th:href="@{/css/tab-common.css}">
     <style>
-        .task-empty {
+        #followup-table {
+            font-size: 13px;
+        }
+        #followup-table thead th {
+            white-space: nowrap;
+            background-color: #f0f3f8;
+            vertical-align: middle;
+        }
+        #followup-table td {
+            vertical-align: middle;
+        }
+        .col-code { width: 90px; }
+        .col-company { min-width: 120px; }
+        .col-company a { font-weight: 600; color: #2f353a; }
+        .col-country { width: 90px; }
+        .col-contact { width: 90px; }
+        .col-status { width: 90px; }
+        .col-comm { width: 110px; }
+        .col-latest-time { white-space: nowrap; width: 130px; }
+        .col-interval { text-align: center; width: 70px; }
+        .col-next-plan {
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .col-next-time { white-space: nowrap; width: 150px; }
+        .col-next-time .country-time { color: #5c6c7c; font-size: 12px; }
+        .table-empty {
             padding: 40px;
             text-align: center;
             color: #999;
-        }
-        .customer-card .card-header {
-            cursor: pointer;
-            background-color: #f0f3f8;
-        }
-        .customer-card .customer-name {
-            font-weight: 600;
-            color: #2f353a;
-        }
-        .task-block {
-            border-left: 3px solid #63c2de;
-            padding-left: 12px;
-            margin-bottom: 10px;
-        }
-        .task-desc {
-            font-weight: 600;
-            color: #4a4a4a;
-            margin-bottom: 6px;
-        }
-        .detail-row {
-            display: flex;
-            align-items: center;
-            padding: 6px 0;
-            border-bottom: 1px dashed #e8e8e8;
-        }
-        .detail-row:last-child {
-            border-bottom: none;
-        }
-        .detail-date {
-            display: inline-block;
-            min-width: 90px;
-            color: #fff;
-            background-color: #63c2de;
-            border-radius: 3px;
-            padding: 1px 6px;
-            font-size: 12px;
-            margin-right: 10px;
-            text-align: center;
-        }
-        .detail-date.empty {
-            background-color: #c8ced3;
-        }
-        .detail-date.overdue {
-            background-color: #f86c6b;
-        }
-        .detail-desc {
-            flex: 1;
-            word-break: break-all;
-            margin-right: 10px;
         }
     </style>
 </head>
@@ -63,36 +42,47 @@
 <th:block th:replace="includes/base :: common_content(~{::div})">
     <div class="container-fluid" style="padding-bottom: 80px;">
         <div class="card">
-<!--            <div class="card-header">跟进面板</div>-->
-            <div class="card-body row" id="task-list-body">
-                <div th:if="${#lists.isEmpty(groups)}" class="task-empty">
-                    暂无未完成的跟进明细
-                </div>
-
-                <div class="col-6" th:each="cust : ${groups}">
-                    <div class="card customer-card mb-3" th:data-customer="${cust.customerId}">
-                        <div class="card-header py-2 customer-header"
-                             th:data-customer="${cust.customerId}"
-                             th:data-name="${cust.customerName}">
-                            <i class="fa fa-user mr-1"></i>
-                            <span class="customer-name" th:text="${cust.customerName}">客户</span>
-                        </div>
-                        <div class="card-body">
-                            <div th:each="fu : ${cust.tasks}" class="task-block" th:data-task="${fu.taskId}">
-                                <div class="task-desc">
-                                    <i class="fa fa-list-alt mr-1"></i>
-                                    <span th:text="${fu.description}">跟进描述</span>
-                                </div>
-                                <div th:each="d : ${fu.details}" class="detail-row" th:data-detail="${d.detailId}"
-                                     th:with="today=${T(java.time.LocalDate).now().toString()}">
-                                    <span class="detail-date" th:text="${d.occurDate != null ? d.occurDate : '无日期'}" th:classappend="${d.occurDate == null ? ' empty' : (d.occurDate.compareTo(today) <= 0 ? ' overdue' : '')}">日期</span>
-                                    <span class="detail-desc" th:text="${d.description}">明细描述</span>
-                                    <button type="button" class="btn btn-success btn-sm btn-complete"><i class="fa fa-check"></i> 标记完成</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="card-body">
+                <table class="table table-hover table-bordered mb-0" id="followup-table">
+                    <thead>
+                    <tr>
+                        <th class="col-code">客户编号</th>
+                        <th class="col-company">客户</th>
+                        <th class="col-country">国家</th>
+                        <th class="col-contact">联系人</th>
+                        <th class="col-status">所属阶段</th>
+                        <th class="col-comm">最近一次跟进沟通方式</th>
+                        <th class="col-latest-time">最近一次跟进时间<br><small>（中国时间）</small></th>
+                        <th class="col-interval">跟进间隔时间<br><small>（天）</small></th>
+                        <th class="col-next-plan">下一次跟进计划</th>
+                        <th class="col-next-time">下一次跟进时间<br><small>（中国时间 + 客户国家时间）</small></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(rows)}">
+                        <td colspan="10" class="table-empty">暂无跟进数据</td>
+                    </tr>
+                    <tr th:each="row : ${rows}" th:data-customer="${row.customerId}">
+                        <td class="col-code" th:text="${row.code}">C001</td>
+                        <td class="col-company">
+                            <a href="javascript:void(0)" th:text="${row.name}">公司</a>
+                        </td>
+                        <td class="col-country" th:text="${row.countryName != null ? row.countryName : '—'}">国家</td>
+                        <td class="col-contact" th:text="${row.contactName != null ? row.contactName : '—'}">联系人</td>
+                        <td class="col-status" th:text="${row.statusLabel}">阶段</td>
+                        <td class="col-comm" th:text="${row.latestCommunication}">沟通方式</td>
+                        <td class="col-latest-time" th:text="${row.latestTimeStr}">时间</td>
+                        <td class="col-interval" th:text="${row.intervalDays}">—</td>
+                        <td class="col-next-plan" th:text="${row.nextPlanDescription}"
+                            th:title="${row.nextPlanDescription}">无</td>
+                        <td class="col-next-time">
+                            <div th:text="${row.nextTimeChinaStr}">中国时间</div>
+                            <div class="country-time" th:if="${row.nextTimeCountryStr != '—'}"
+                                 th:text="${row.countryName != null ? row.countryName + ' ' + row.nextTimeCountryStr : row.nextTimeCountryStr}">国家时间</div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -102,39 +92,11 @@
     <script th:inline="javascript">
         const customerFormId = /*[[${customerFormId}]]*/ null
 
-        $(document).on('click', '.customer-header', function () {
-            const id = $(this).data('customer')
-            const name = $(this).data('name')
+        $('#followup-table').on('click', '.col-company a', function () {
+            const $tr = $(this).closest('tr')
+            const id = $tr.data('customer')
+            const name = $(this).text()
             openOnNewTab('customer_' + id, '/forms/page/' + customerFormId + '/' + id, name)
-        })
-
-        $(document).on('click', '.btn-complete', function () {
-            const $row = $(this).closest('.detail-row')
-            const detailId = $row.data('detail')
-            const $btn = $(this)
-            $btn.prop('disabled', true)
-            $.post('/tasks/' + detailId + '/complete', function (res) {
-                if (res && res.success) {
-                    const $fu = $row.closest('.task-block')
-                    $row.remove()
-                    if ($fu.find('.detail-row').length === 0) {
-                        const $card = $fu.closest('.customer-card')
-                        $fu.remove()
-                        if ($card.find('.task-block').length === 0) {
-                            $card.remove()
-                            if ($('.customer-card').length === 0) {
-                                $('#task-list-body').append('<div class="task-empty">暂无未完成的跟进明细</div>')
-                            }
-                        }
-                    }
-                } else {
-                    toastr.error('标记失败')
-                    $btn.prop('disabled', false)
-                }
-            }).fail(function () {
-                toastr.error('请求失败')
-                $btn.prop('disabled', false)
-            })
         })
     </script>
 </th:block>

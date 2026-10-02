@@ -2,6 +2,8 @@ package com.rick.manager.module.customer.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rick.db.service.SharpService;
+import com.rick.db.service.support.Params;
 import com.rick.formflow.form.service.FormAdvice;
 import com.rick.formflow.form.service.bo.FormBO;
 import com.rick.manager.module.code.service.CodeSequenceService;
@@ -30,6 +32,8 @@ public class CustomerFormAdvice implements FormAdvice {
 
     private final CustomerDAO customerDAO;
 
+    private final SharpService sharpService;
+
     @Override
     public FormBO beforeRender(Map<String, ?> parameterMap, FormBO formBO) {
         if (Objects.isNull(formBO.getInstanceId())) {
@@ -56,7 +60,40 @@ public class CustomerFormAdvice implements FormAdvice {
             formBO.getData().put("previewCode", code);
         }
 
+        // 暴露客户所在国时区，供前端 JS 由「北京时间」换算「客户时间」
+        Long countryId = extractCountryId(formBO.getData().get("national"));
+        if (countryId != null) {
+            String timezone = sharpService.queryForObject(
+                    "select timezone from t_country where id = :id",
+                    Params.builder(1).pv("id", countryId).build(),
+                    String.class).orElse(null);
+            formBO.getData().put("customerTimezone", timezone);
+        }
+
         return formBO;
+    }
+
+    private Long extractCountryId(Object national) {
+        if (national == null) {
+            return null;
+        }
+        Object id;
+        if (national instanceof Map) {
+            id = ((Map<?, ?>) national).get("id");
+        } else {
+            id = national;
+        }
+        if (id == null) {
+            return null;
+        }
+        try {
+            if (id instanceof Number) {
+                return ((Number) id).longValue();
+            }
+            return Long.valueOf(String.valueOf(id));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
 
