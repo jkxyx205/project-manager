@@ -17,10 +17,7 @@ import com.rick.manager.module.customer.entity.Customer;
 import com.rick.manager.module.customer.entity.Record;
 import com.rick.meta.dict.model.DictValue;
 import com.rick.report.core.entity.Report;
-import com.rick.report.core.model.HiddenReportColumn;
-import com.rick.report.core.model.QueryField;
-import com.rick.report.core.model.ReportColumn;
-import com.rick.report.core.model.SordEnum;
+import com.rick.report.core.model.*;
 import com.rick.report.core.service.ReportService;
 import com.rick.report.core.support.ReportConstants;
 import org.junit.jupiter.api.Test;
@@ -179,12 +176,12 @@ public class CustomerTest {
                 .tplName("tpl/list/list") // 没有特殊要求使用模版页面
 //                .tplName("tpl/list/ajax_list") // 没有特殊要求使用模版页面
                 .name("客户")
-                .reportAdviceName("operatorReportAdvice")
+                .reportAdviceName("customerReportAdvice")
                 .additionalInfo(Params.builder(1).pv("operator-bar", true) // 显示操作按钮
                         .pv(ReportConstants.ADDITIONAL_FORM_ACTION, ReportConstants.ADDITIONAL_LINK)
                         .pv(ReportConstants.ADDITIONAL_FORM_ID, "866354416721108992")
                         .build()) // 显示操作按钮
-                .querySql("SELECT t_customer.name AS \"name\", t_customer.national_code AS \"national\", t_customer.address AS \"address\", t_customer.contact_name AS \"contactName\",t_customer.contact_phone AS \"contactPhone\",t_customer.contact_mail AS \"contactMail\",t_customer.remark AS \"remark\",t_customer.code AS \"code\",t_customer.create_by AS \"createBy\",t_customer.create_time AS \"createTime\",t_customer.update_by AS \"updateBy\",t_customer.update_time AS \"updateTime\",t_customer.is_deleted AS \"deleted\",t_customer.id AS \"id\" FROM t_customer WHERE " +
+                .querySql("SELECT t_customer.name AS \"name\", t_customer.national_code AS \"national\", t_customer.contact_name AS \"contactName\",t_customer.status AS \"status\",t_customer.remark AS \"remark\",t_customer.code AS \"code\",t_customer.create_by AS \"createBy\",t_customer.create_time AS \"createTime\",t_customer.update_by AS \"updateBy\",t_customer.update_time AS \"updateTime\",t_customer.is_deleted AS \"deleted\",t_customer.id AS \"id\" FROM t_customer WHERE " +
                         "(name LIKE :keyword OR contact_name LIKE :keyword OR contact_phone LIKE :keyword OR contact_mail LIKE :keyword OR whats_app LIKE :keyword OR id = :id) AND is_deleted = 0")
                 .queryFieldList(Arrays.asList(
 //                        new QueryField("code", "编号"),
@@ -202,10 +199,14 @@ public class CustomerTest {
 //                        new ReportColumn("code", "编号"),
                         new ReportColumn("name", "客户"),
                         new ReportColumn("national", "国家", false, "t_country", Arrays.asList("dictConverter")),
-                        new ReportColumn("address", "地址"),
                         new ReportColumn("contactName", "联系人"),
-                        new ReportColumn("contactPhone", "电话"),
-                        new ReportColumn("contactMail", "邮箱")
+                        // 以下跟进摘要列由 CustomerReportAdvice.beforeSetRow 计算填充（算法与「跟进面板」一致）
+                        new ReportColumn("status", "所属阶段", false),
+                        new ReportColumn("latestCommunication", "最近一次跟进沟通方式", false),
+                        new ReportColumn("latestFollowupTime", "最近一次跟进时间（中国时间）", false).setColumnWidth(130).setAlign(AlignEnum.CENTER),
+                        new ReportColumn("intervalDays", "跟进间隔时间（天）", false).setColumnWidth(90).setAlign(AlignEnum.CENTER),
+                        new ReportColumn("nextPlanDescription", "下一次跟进计划", false).setTooltip(true),
+                        new ReportColumn("nextPlanTime", "下一次跟进时间（中国时间 + 客户国家时间）", false).setColumnWidth(240)
 //                        new ReportColumn("whatsApp", "Whats App")
 //                        new ReportColumn("remark", "备注"),
 //                        new ReportColumn("createBy", "创建人"),
