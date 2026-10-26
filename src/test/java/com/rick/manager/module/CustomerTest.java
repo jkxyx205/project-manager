@@ -81,7 +81,7 @@ public class CustomerTest {
         // 文本校验器
         List<Validator> textValidatorList = Lists.newArrayListWithExpectedSize(2);
         textValidatorList.add(new Required(true));
-        textValidatorList.add(new Length(16));
+        textValidatorList.add(new Length(32));
 
         CustomizeRegex codeRegex = new CustomizeRegex("^[0-9a-zA-Z_\\/%\\-]{1,}$", "CODE只能包含数字、字母、下划线、中划线");
 
